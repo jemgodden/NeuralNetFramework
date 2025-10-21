@@ -1,8 +1,8 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "../../include/nnffs/matrix/matrix.h"
-#include "../../include/nnffs/utils/exception.h"
+#include "../../include/nnf/matrix/matrix.h"
+#include "../../include/nnf/utils/exception.h"
 
 
 Matrix::Matrix(int const rows, int const cols, double const value) {

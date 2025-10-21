@@ -1,6 +1,6 @@
 /.idea
 /cmake-build-debug
-/external
+/build
 /data
-
+/external/googletest/*
 plan.md

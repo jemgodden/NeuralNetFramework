@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(NNFFS
+project(NeuralNetFramework
         VERSION 0.1.0
         DESCRIPTION "Basic Neural Network Framework"
         LANGUAGES CXX
@@ -8,11 +8,12 @@ project(NNFFS
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_OSX_ARCHITECTURES "arm64")
 
+include(cmake/UpdateSubmodules.cmake)
 
 include(CTest)
 
-
 add_subdirectory(src)
+add_subdirectory(tests)
 add_subdirectory(external)
 
 add_executable(${PROJECT_NAME} main.cpp)

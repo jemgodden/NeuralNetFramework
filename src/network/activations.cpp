@@ -1,6 +1,6 @@
 #include <cmath>
 
-#include "../../include/nnffs/network/activations.h"
+#include "../../include/nnf/network/activations.h"
 
 
 double sigmoid(double input) {

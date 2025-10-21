@@ -1,8 +1,8 @@
 #include <iostream>
 #include <cmath>
 
-#include "include/nnffs/matrix/matrix.h"
-#include "include/nnffs/utils/dataset.h"
+#include "include/nnf/matrix/matrix.h"
+#include "include/nnf/utils/dataset.h"
 
 
 double square(double const value) {

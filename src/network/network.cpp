@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "../../include/nnffs/network/network.h"
-#include "../../include/nnffs/matrix/matrix.h"
+#include "../../include/nnf/network/network.h"
+#include "../../include/nnf/matrix/matrix.h"
 
 
 Network::Network(int inputNodes, int hiddenLayers, int hiddenNodes, int outputNodes) {

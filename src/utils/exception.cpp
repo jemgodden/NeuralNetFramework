@@ -1,7 +1,7 @@
 #include <exception>
 #include <string>
 
-#include "../../include/nnffs/utils/exception.h"
+#include "../../include/nnf/utils/exception.h"
 
 
 IllegalMatrixOperation::IllegalMatrixOperation(const char* msg) {
