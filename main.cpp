@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cmath>
 
+#include "spdlog/spdlog.h"
+
 #include "include/nnf/matrix/matrix.h"
 #include "include/nnf/utils/dataset.h"
 
@@ -10,6 +12,8 @@ double square(double const value) {
 };
 
 int main(int argc, char *argv[]) {
+    spdlog::info("Starting program.");
+
     Matrix* m = new Matrix(4, 4, 2);
     m->set(7, 1, 50);
     std::cout << "INITIAL: m" << std::endl;
