@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 4.0.1)
 project(NeuralNetFramework
         VERSION 0.1.0
         DESCRIPTION "Basic Neural Network Framework"

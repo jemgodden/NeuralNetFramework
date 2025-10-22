@@ -7,7 +7,7 @@
 #include "../../include/nnf/matrix/matrix.h"
 
 
-DataSet::DataSet(std::string filePath) {
+DataSet::DataSet(const std::string &filePath) {
     _filePath = filePath;
     _fileRows = 0;
     _fileCols = 0;
@@ -25,15 +25,15 @@ std::string DataSet::filePath() {
     return _filePath;
 };
 
-int DataSet::fileRows() {
+int DataSet::fileRows() const {
     return _fileRows;
 };
 
-int DataSet::fileCols() {
+int DataSet::fileCols() const {
     return _fileCols;
 };
 
-Matrix* DataSet::data() {
+Matrix* DataSet::data() const {
     return _data;
 };
 
@@ -71,18 +71,31 @@ void DataSet::_getParameters() {
     inputFile.close();
 };
 
-double DataSet::_convertStrToDouble(std::string strValue) {
+int DataSet::convertStrToInt(const std::string& strValue) {
+    double value;
+    try {
+        value = std::stoi(strValue);
+    }
+    catch (std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        throw;
+    }
+    return value;
+}
+
+double DataSet::convertStrToDouble(const std::string& strValue) {
     double value;
     try {
         value = std::stod(strValue);
     }
     catch (std::exception& e) {
-        std::cerr << e.what() << std::endl; 
+        std::cerr << e.what() << std::endl;
+        throw;
     }
     return value;
 }
 
-void DataSet::_getData() {
+void DataSet::_getData() const {
     std::fstream inputFile;
     inputFile.open(_filePath);
 
@@ -114,12 +127,12 @@ void DataSet::_getData() {
                 strValue.append(1, nextLine[i]);
             }
             else {
-                _data->set(rowNum, colNum, _convertStrToDouble(strValue));
+                _data->set(rowNum, colNum, convertStrToDouble(strValue));
                 strValue.clear();
                 ++colNum;
             }
         }
-        _data->set(rowNum, colNum, _convertStrToDouble(strValue));
+        _data->set(rowNum, colNum, convertStrToDouble(strValue));
         strValue.clear();
         ++rowNum;
     }
@@ -127,25 +140,6 @@ void DataSet::_getData() {
     inputFile.close();
 };
 
-void DataSet::printData() {
+void DataSet::printData() const {
     _data->print();
 }
-
-// void DataSet::_readFile(void (DataSet::*func)(std::fstream)) {
-//     std::fstream* inputFile;
-//     inputFile->open(_filePath);
-
-//     try {
-//         if (inputFile->is_open()) {
-//             (this->*func)(*inputFile);
-//         }
-//         else {
-//             throw "Input file was not opened properly.";
-//         }
-//     }
-//     catch (std::string msg) {
-//         std::cout << msg << std::endl; 
-//     }
-
-//     inputFile->close();
-// };

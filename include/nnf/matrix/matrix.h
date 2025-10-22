@@ -9,6 +9,8 @@ class Matrix {
         int _cols;
         double* _values;
 
+        static double _uniform_distribution(double min, double max, int scale=10000);
+
     public:
         Matrix(int rows, int cols, double value=DEFAULT_VALUE);
         
@@ -18,7 +20,7 @@ class Matrix {
         
         int cols() const;
 
-        void clear(double value=DEFAULT_VALUE) const;
+        void setAll(double value=DEFAULT_VALUE) const;
         
         void setIdentity() const;
         
@@ -26,25 +28,27 @@ class Matrix {
 
         void set(int row, int col, double value) const;
 
-        double get(int row, int col);
-        
-        void scale(double scalar);
-        
-        void addScalar(double scalar);
-        
-        void subtractScalar(double scalar);
-        
-        Matrix* add(Matrix* input);
-        
-        Matrix* subtract(Matrix* input);
-        
-        Matrix* multiply(Matrix* input);
-        
-        Matrix* dot(Matrix* m2);
-        
-        void apply(double (*func)(double));
-        
-        void transpose();
+        double get(int row, int col) const;
 
-        void print();
+        void randomise(int n) const;
+
+        void scale(double scalar) const;
+        
+        void addScalar(double scalar) const;
+        
+        void subtractScalar(double scalar) const;
+        
+        Matrix* add(const Matrix* input) const;
+        
+        Matrix* subtract(const Matrix* input) const;
+        
+        Matrix* multiply(const Matrix* input) const;
+        
+        Matrix* dot(const Matrix* input) const;
+        
+        void apply(double (*func)(double)) const;
+        
+        void transpose() const;
+
+        void print() const;
 };

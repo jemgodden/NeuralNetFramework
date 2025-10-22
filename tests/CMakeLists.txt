@@ -3,7 +3,9 @@ if(BUILD_TESTING)
 
     include_directories(src)
 
-    add_executable(${TESTS_EXECUTABLE_NAME} tests.cpp)
+    file(GLOB_RECURSE SOURCES "*.cpp")
+
+    add_executable(${TESTS_EXECUTABLE_NAME} ${SOURCES})
 
     target_link_libraries(${TESTS_EXECUTABLE_NAME}
             PUBLIC libnnf

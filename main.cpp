@@ -72,9 +72,14 @@ int main(int argc, char *argv[]) {
     std::cout << "APPLY: m3" << std::endl;
     m3->print();
 
-    DataSet* data = new DataSet("/Users/jemgodden/Dev/CPP/NeuralNetFramework/data/test.csv");
-    std::cout << "READ DATA: data" << std::endl;
+    DataSet* data = new DataSet("/Users/jemgodden/Dev/CPP/NeuralNetFramework/example_data/test.csv");
+    std::cout << "READ DATA: example_data" << std::endl;
     data->printData();
+
+    Matrix* m10 = new Matrix(4, 4);
+    m10->randomise(2);
+    std::cout << "RANDOMISED: m10" << std::endl;
+    m10->print();
 
     delete m;
     delete m2;
@@ -85,8 +90,8 @@ int main(int argc, char *argv[]) {
     delete m7;
     delete m8;
     delete m9;
-
     delete data;
+    delete m10;
 
     return 0;
 };

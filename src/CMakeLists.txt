@@ -1,5 +1,7 @@
+# Structure adapted from: https://github.com/brainydexter/PublicCode/tree/master/cpp
+
 set(CMAKE_CXX_STANDARD 17)
-# Structure taken from: https://github.com/brainydexter/PublicCode/tree/master/cpp
+
 file(GLOB_RECURSE SOURCES "*.cpp")
 
 add_library(libnnf SHARED ${SOURCES})

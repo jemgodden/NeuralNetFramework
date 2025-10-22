@@ -1,0 +1,44 @@
+#include <gtest/gtest.h>
+
+#include "../include/nnf/utils/dataset.h"
+
+
+// Testing Conversion Functions:
+
+// Test valid inputs.
+TEST(StrToIntTest, ValidInputs) {
+    EXPECT_EQ(DataSet::convertStrToInt("0"), 0);
+    EXPECT_EQ(DataSet::convertStrToInt("42"), 42);
+    EXPECT_EQ(DataSet::convertStrToInt("-123"), -123);
+    EXPECT_EQ(DataSet::convertStrToInt("+99"), 99);
+}
+
+// Test invalid inputs.
+TEST(StrToIntTest, InvalidInputs) {
+    EXPECT_THROW(DataSet::convertStrToInt("abc"), std::invalid_argument);
+    EXPECT_THROW(DataSet::convertStrToInt(""), std::invalid_argument);
+}
+
+// Test that leading spaces are valid.
+TEST(StrToIntTest, ValidLeadingSpaces) {
+    EXPECT_EQ(DataSet::convertStrToInt(" \t  42"), 42);
+    EXPECT_EQ(DataSet::convertStrToInt(" -42"), -42);
+}
+
+// Test that trailing spaces are valid.
+TEST(StrToIntTest, ValidTrailingSpaces) {
+    EXPECT_EQ(DataSet::convertStrToInt("42 \t "), 42);
+    EXPECT_EQ(DataSet::convertStrToInt("-42 "), -42);
+}
+
+// Test out of range values.
+TEST(StrToIntTest, OutOfRange) {
+    EXPECT_THROW(DataSet::convertStrToInt("999999999999999999999999"), std::out_of_range);
+    EXPECT_THROW(DataSet::convertStrToInt("-999999999999999999999999"), std::out_of_range);
+}
+
+// Test boundary conditions.
+TEST(StrToIntTest, IntLimits) {
+    EXPECT_EQ(DataSet::convertStrToInt(std::to_string(std::numeric_limits<int>::max())), std::numeric_limits<int>::max());
+    EXPECT_EQ(DataSet::convertStrToInt(std::to_string(std::numeric_limits<int>::min())), std::numeric_limits<int>::min());
+}

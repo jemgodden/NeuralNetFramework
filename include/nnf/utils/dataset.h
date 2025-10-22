@@ -1,6 +1,8 @@
 #pragma once
 
+
 #include <string>
+
 #include "../matrix/matrix.h"
 
 
@@ -13,25 +15,25 @@ class DataSet {
 
         void _getParameters();
 
-        double _convertStrToDouble(std::string strValue);
-
-        void _getData();
-
-        // void _readFile(void (DataSet::*func)(std::fstream));
+        void _getData() const;
 
     public:
-        DataSet(std::string filepath);
+        explicit DataSet(const std::string &filePath);
         
         ~DataSet();
 
         std::string filePath();
 
-        int fileRows();
+        int fileRows() const;
 
-        int fileCols();
+        int fileCols() const;
 
-        Matrix* data();
+        Matrix* data() const;
 
-        void printData();
+        static int convertStrToInt(const std::string& strValue);
+
+        static double convertStrToDouble(const std::string& strValue);
+
+        void printData() const;
         
 };
