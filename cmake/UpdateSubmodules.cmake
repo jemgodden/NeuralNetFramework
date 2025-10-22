@@ -1,4 +1,4 @@
-# Taken from https://github.com/cpp-for-yourself/lectures-and-homeworks/blob/main/lectures/googletest.md#how-to-get-the-googletest-code
+# Adapted from https://github.com/cpp-for-yourself/lectures-and-homeworks/blob/main/lectures/googletest.md#how-to-get-the-googletest-code
 find_package(Git QUIET)
 if(GIT_FOUND)
     option(UPDATE_SUBMODULES "Check submodules during build" ON)
