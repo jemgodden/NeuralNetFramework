@@ -18,7 +18,7 @@ Currently, the best way to use this framework is to download the source code fro
 
 ## Usage
 
-TBC...
+TBC
 
 ## Future Development
 
