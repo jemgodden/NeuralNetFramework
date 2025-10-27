@@ -24,12 +24,12 @@ TBC...
 
 Further development could include:
 * Building upon the framework to allow for creation of more advanced networks, such as:
-    * Convolutional Neural Networks (CNNs)
-    * Recurrent Neural Networks (RNNs)
-* Adding functionality to read data in a wider variety of formats and in a robust manner.
+  * Convolutional Neural Networks (CNNs)
+  * Recurrent Neural Networks (RNNs)
+* Adding ability to read a wider variety of input data.
 * Building functionality in framework for other ML models, such as:
-    * Naive-Bayes
-    * Linear/Logistic Regression
-    * K-Means Clustering
-    * K-Nearest Neighbours (KNN)
-    * Support Vector Machines (SVM)
+  * Naive-Bayes
+  * Linear/Logistic Regression
+  * K-Means Clustering
+  * K-Nearest Neighbours (KNN)
+  * Support Vector Machines (SVM)
