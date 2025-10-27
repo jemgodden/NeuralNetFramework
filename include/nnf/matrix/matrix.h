@@ -6,7 +6,9 @@
 class Matrix {
     private:
         int _rows;
+
         int _cols;
+
         double* _values;
 
         static double _uniform_distribution(double min, double max, int scale=10000);
@@ -30,7 +32,7 @@ class Matrix {
 
         double get(int row, int col) const;
 
-        void randomise(int n) const;
+        void randomise(int n=2) const;
 
         void scale(double scalar) const;
         

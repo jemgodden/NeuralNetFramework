@@ -68,7 +68,7 @@ double Matrix::get(const int row, const int col) const {
             throw std::out_of_range("Row index is out of range of matrix.");
         }
         if (col >= _cols) {
-            throw std::out_of_range("Column index is out of range matirx.");
+            throw std::out_of_range("Column index is out of range matrix.");
         }
         return *(_values + (row * _cols) + col);
     }

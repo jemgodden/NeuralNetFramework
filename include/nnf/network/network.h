@@ -1,17 +1,22 @@
 #pragma once
 
-
 #include "../matrix/matrix.h"
 
 
 class Network {
     private:
         int _inputNodes;
+
         int _hiddenLayers;
+
         int _hiddenNodes;
+
         int _outputNodes;
+
         double _learningRate;
+
         Matrix* _hiddenWeights;
+
         Matrix* _outputWeights;
 
     public:
@@ -29,13 +34,11 @@ class Network {
 
         double learningRate() const;
 
-        void info();
+        void train();
+
+        void predict();
 
         void save();
 
         void load();
-
-        void train();
-
-        void predict();
 };

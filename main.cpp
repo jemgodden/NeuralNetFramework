@@ -1,16 +1,14 @@
 #include <iostream>
-#include <cmath>
+#include <mach/boolean.h>
 
 #include "include/nnf/matrix/matrix.h"
-#include "include/nnf/utils/dataset.h"
+#include "include/nnf/network/activations.h"
+#include "include/nnf/utils/file_reader.h"
+#include "include/nnf/utils/file_writer.h"
 
-
-double square(double const value) {
-    return std::pow(value, 2.0);
-};
 
 int main(int argc, char *argv[]) {
-    Matrix* m = new Matrix(4, 4, 2);
+    const Matrix* m = new Matrix(4, 4, 2);
     m->set(7, 1, 50);
     std::cout << "INITIAL: m" << std::endl;
     m->print();
@@ -31,35 +29,35 @@ int main(int argc, char *argv[]) {
     std::cout << "IDENTITY: m" << std::endl;
     m->print();
 
-    Matrix* m2 = new Matrix(4, 4, 7);
+    const Matrix* m2 = new Matrix(4, 4, 7);
     std::cout << "INITIAL: m2" << std::endl;
     m2->print();
 
-    Matrix* m7 = m->add(m2);
+    const Matrix* m3 = m->add(m2);
     std::cout << "ADD: m, m2" << std::endl;
-    m7->print();
-
-    Matrix* m8 = m->subtract(m2);
-    std::cout << "SUBTRACT: m, m2" << std::endl;
-    m8->print();
-
-    Matrix* m3 = m->multiply(m2);
-    std::cout << "MULTIPLY: m, m2" << std::endl;
     m3->print();
 
-    Matrix* m4 = new Matrix(2, 3, 3);
-    std::cout << "INITIAL: m4" << std::endl;
+    const Matrix* m4 = m->subtract(m2);
+    std::cout << "SUBTRACT: m, m2" << std::endl;
     m4->print();
 
-    Matrix* m5 = new Matrix(3, 2, 4);
-    std::cout << "INITIAL: m5" << std::endl;
+    const Matrix* m5 = m->multiply(m2);
+    std::cout << "MULTIPLY: m, m2" << std::endl;
     m5->print();
 
-    Matrix* m6 = m4->dot(m5);
-    std::cout << "DOT: m4, m5" << std::endl;
+    const Matrix* m6 = new Matrix(2, 3, 3);
+    std::cout << "INITIAL: m6" << std::endl;
     m6->print();
 
-    Matrix* m9 = new Matrix(4, 4);
+    const Matrix* m7 = new Matrix(3, 2, 4);
+    std::cout << "INITIAL: m7" << std::endl;
+    m7->print();
+
+    const Matrix* m8 = m4->dot(m5);
+    std::cout << "DOT: m4, m5" << std::endl;
+    m8->print();
+
+    const Matrix* m9 = new Matrix(4, 4);
     m9->setAscending();
     std::cout << "INITIAL: m9" << std::endl;
     m9->print();
@@ -68,18 +66,23 @@ int main(int argc, char *argv[]) {
     std::cout << "TRANSPOSE: m9" << std::endl;
     m9->print();
 
-    m3->apply(&square);
-    std::cout << "APPLY: m3" << std::endl;
-    m3->print();
+    m5->apply(&square);
+    std::cout << "APPLY: m5" << std::endl;
+    m5->print();
 
-    DataSet* data = new DataSet("/Users/jemgodden/Dev/CPP/NeuralNetFramework/example_data/test.csv");
+    MatrixFileReader* matrix_file_reader = new MatrixFileReader();
+    std::cout << "hello" << std::endl;
+    const Matrix* load_matrix = matrix_file_reader->readMatrixFromFile("example_data/test.csv", TRUE);
     std::cout << "READ DATA: example_data" << std::endl;
-    data->printData();
+    load_matrix->print();
 
-    Matrix* m10 = new Matrix(4, 4);
-    m10->randomise(2);
+    const Matrix* rand_matrix = new Matrix(4, 4);
+    rand_matrix->randomise();
     std::cout << "RANDOMISED: m10" << std::endl;
-    m10->print();
+    rand_matrix->print();
+
+    MatrixFileWriter* matrix_file_writer = new MatrixFileWriter();
+    matrix_file_writer->writeMatrixToFile("example_data/test2.csv", rand_matrix);
 
     delete m;
     delete m2;
@@ -90,8 +93,8 @@ int main(int argc, char *argv[]) {
     delete m7;
     delete m8;
     delete m9;
-    delete data;
-    delete m10;
+    delete matrix_file_reader;
+    delete rand_matrix;
 
     return 0;
 };

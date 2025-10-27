@@ -1,4 +1,6 @@
 #pragma once
 
 
-double sigmoid(double input);
+double square(double value);
+
+double sigmoid(double value);

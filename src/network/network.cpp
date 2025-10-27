@@ -12,9 +12,7 @@ Network::Network(const int inputNodes, const int hiddenLayers, const int hiddenN
     _outputWeights = new Matrix(outputNodes, hiddenNodes);
 };
 
-Network::~Network() {
-    
-};
+Network::~Network() = default;
 
 int Network::inputNodes() const {
     return _inputNodes;
@@ -36,7 +34,11 @@ double Network::learningRate() const {
     return _outputNodes;
 };
 
-void Network::info() {
+void Network::train() {
+
+};
+
+void Network::predict() {
 
 };
 
@@ -45,13 +47,5 @@ void Network::save() {
 };
 
 void Network::load() {
-
-};
-
-void Network::train() {
-
-};
-
-void Network::predict() {
 
 };
