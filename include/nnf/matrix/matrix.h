@@ -11,7 +11,7 @@ class Matrix {
 
         double* _values;
 
-        static double _uniform_distribution(double min, double max, int scale=10000);
+        static double _sampleUniformDistribution(double min, double max, int scale=10000);
 
     public:
         Matrix(int rows, int cols, double value=DEFAULT_VALUE);
@@ -51,6 +51,10 @@ class Matrix {
         void apply(double (*func)(double)) const;
         
         void transpose() const;
+
+        std::tuple<Matrix*, Matrix*> rowSlice(int row) const;
+
+        std::tuple<Matrix*, Matrix*> colSlice(int col) const;
 
         void print() const;
 };

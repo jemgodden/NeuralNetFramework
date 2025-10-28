@@ -1,6 +1,8 @@
 #include <iostream>
 #include <stdexcept>
 #include <random>
+#include <tuple>
+#include <mach/boolean.h>
 
 #include "../../include/nnf/matrix/matrix.h"
 #include "../../include/nnf/utils/exception.h"
@@ -78,7 +80,7 @@ double Matrix::get(const int row, const int col) const {
     }
 };
 
-double Matrix::_uniform_distribution(const double min, const double max, const int scale) {
+double Matrix::_sampleUniformDistribution(const double min, const double max, const int scale) {
     const double diff = max - min;
     const int scaled_diff = static_cast<int>(diff * scale);
 
@@ -93,7 +95,7 @@ void Matrix::randomise(const int n) const {
     const double max = -min;
 
     for (int i=0; i<_rows * _cols; i++) {
-        *(_values + i) = _uniform_distribution(min, max);
+        *(_values + i) = _sampleUniformDistribution(min, max);
     }
 };
 
@@ -214,6 +216,55 @@ void Matrix::transpose() const {
             }
         }
     }
+};
+
+
+std::tuple<Matrix*, Matrix*> Matrix::rowSlice(const int row) const {
+    if (row < 0 || row >= this->rows()) {
+        throw IllegalMatrixOperation("Given row index is invalid.");
+    }
+
+    Matrix* slice = new Matrix(1, this->cols());
+    Matrix* nonSlice = new Matrix(this->rows()-1, this->cols());
+
+    int passedSliceRow = FALSE;
+    for (int i=0; i<this->rows(); i++) {
+        if (i == row) {
+            passedSliceRow = TRUE;
+        }
+        for (int j=0; j<this->cols(); j++) {
+            if (i == row) {
+                slice->set(0, j, get(i, j));
+            }
+            else {
+                nonSlice->set(i-passedSliceRow, j, get(i, j));
+            }
+        }
+    }
+    return {slice, nonSlice};
+};
+
+std::tuple<Matrix*, Matrix*> Matrix::colSlice(const int col) const {
+    if (col < 0 || col >= this->cols()) {
+        throw IllegalMatrixOperation("Given col index is invalid.");
+    }
+
+    Matrix* slice = new Matrix(this->rows(), 1);
+    Matrix* nonSlice = new Matrix(this->rows(), this->cols()-1);
+
+    for (int i=0; i<this->rows(); i++) {
+        int passedSliceCol = FALSE;
+        for (int j=0; j<this->cols(); j++) {
+            if (j == col) {
+                passedSliceCol = TRUE;
+                slice->set(i, 0, get(i, j));
+            }
+            else {
+                nonSlice->set(i, j-passedSliceCol, get(i, j));
+            }
+        }
+    }
+    return {slice, nonSlice};
 };
 
 void Matrix::print() const {

@@ -70,8 +70,12 @@ int main(int argc, char *argv[]) {
     std::cout << "APPLY: m5" << std::endl;
     m5->print();
 
+    auto [m10, m11] = m5->colSlice(0);
+    std::cout << "SLICE: m5" << std::endl;
+    m10->print();
+    m11->print();
+
     MatrixFileReader* matrix_file_reader = new MatrixFileReader();
-    std::cout << "hello" << std::endl;
     const Matrix* load_matrix = matrix_file_reader->readMatrixFromFile("example_data/test.csv", TRUE);
     std::cout << "READ DATA: example_data" << std::endl;
     load_matrix->print();
@@ -93,6 +97,8 @@ int main(int argc, char *argv[]) {
     delete m7;
     delete m8;
     delete m9;
+    delete m10;
+    delete m11;
     delete matrix_file_reader;
     delete rand_matrix;
 
