@@ -218,6 +218,52 @@ void Matrix::transpose() const {
     }
 };
 
+int Matrix::argmax() const {
+    if (cols() > 1) {
+        throw IllegalMatrixOperation("Argmax can only be done on a column vector.");
+    }
+
+    double curMax = get(0, 0);;
+    int curMaxIndex = 0;
+
+    for (int i=1; i<rows(); i++) {
+        const double curElement = get(i, 0);
+        if (curElement > curMax) {
+            curMax = curElement;
+            curMaxIndex = i;
+        }
+    }
+
+    return curMaxIndex;
+};
+
+Matrix* Matrix::row(const int row) const {
+    if (row < 0 || row >= this->rows()) {
+        throw IllegalMatrixOperation("Given row index is invalid.");
+    }
+
+    Matrix* slice = new Matrix(1, this->cols());
+
+    for (int i=0; i<this->cols(); i++) {
+        slice->set(0, i, get(row, i));
+    }
+
+    return slice;
+};
+
+Matrix* Matrix::col(const int col) const {
+    if (col < 0 || col >= this->cols()) {
+        throw IllegalMatrixOperation("Given col index is invalid.");
+    }
+
+    Matrix* slice = new Matrix(this->rows(), 1);
+
+    for (int i=0; i<this->rows(); i++) {
+        slice->set(i, 0, get(i, col));
+    }
+
+    return slice;
+};
 
 std::tuple<Matrix*, Matrix*> Matrix::rowSlice(const int row) const {
     if (row < 0 || row >= this->rows()) {

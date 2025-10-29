@@ -52,6 +52,12 @@ class Matrix {
         
         void transpose() const;
 
+        int argmax() const;
+
+        Matrix* row(int row) const;
+
+        Matrix* col(int col) const;
+
         std::tuple<Matrix*, Matrix*> rowSlice(int row) const;
 
         std::tuple<Matrix*, Matrix*> colSlice(int col) const;
