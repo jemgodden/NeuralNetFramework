@@ -11,7 +11,7 @@
 MatrixFileReader::MatrixFileReader() {
     _filePath = "";
     _fullFilePath = std::filesystem::path();
-    _header = false;
+    _headerRow = false;
     _fileRows = 0;
     _fileCols = 0;
     _matrix = nullptr;
@@ -21,16 +21,16 @@ MatrixFileReader::~MatrixFileReader() {
     delete _matrix;
 };
 
-std::string MatrixFileReader::filePath() {
+std::string MatrixFileReader::filePath() const {
     return _filePath;
 };
 
-std::filesystem::path MatrixFileReader::fullFilePath() {
+std::filesystem::path MatrixFileReader::fullFilePath() const {
     return _fullFilePath;
 };
 
 bool MatrixFileReader::headerRow() const {
-    return _fileRows;
+    return _headerRow;
 };
 
 int MatrixFileReader::fileRows() const {
@@ -47,7 +47,7 @@ Matrix* MatrixFileReader::matrix() const {
 
 void MatrixFileReader::_getParameters() {
     std::ifstream inputFile;
-    inputFile.open(_fullFilePath);
+    inputFile.open(fullFilePath());
 
     try {
         if (inputFile.is_open()) {
@@ -67,7 +67,7 @@ void MatrixFileReader::_getParameters() {
                 ++rowCount;
             }
 
-            _fileRows = rowCount - _header;
+            _fileRows = rowCount - headerRow();
         }
         else {
             throw FileOpenError("Input file was not opened properly.");
@@ -96,7 +96,7 @@ double MatrixFileReader::convertStrToDouble(const std::string& strValue) {
 Matrix* MatrixFileReader::readMatrixFromFile(const std::string &filePath, const bool header, const int rows, const int cols) {
     _filePath = filePath;
     _fullFilePath = std::filesystem::current_path().parent_path() / std::filesystem::path(filePath);
-    _header = header;
+    _headerRow = header;
     if (rows == 0 || cols == 0) {
         _getParameters();
     }
@@ -106,7 +106,7 @@ Matrix* MatrixFileReader::readMatrixFromFile(const std::string &filePath, const 
     }
 
     std::ifstream inputFile;
-    inputFile.open(_fullFilePath);
+    inputFile.open(fullFilePath());
 
     std::string firstLine;
     try {
@@ -128,7 +128,7 @@ Matrix* MatrixFileReader::readMatrixFromFile(const std::string &filePath, const 
     _matrix = new Matrix(rows, cols);
 
     int rowNum = 0;
-    if (!header) {
+    if (!headerRow()) {
         int colNum = 0;
         std::string strValue;
         for (int i=0; i<firstLine.length(); i++) {

@@ -17,11 +17,11 @@ MatrixFileWriter::MatrixFileWriter() {
 
 MatrixFileWriter::~MatrixFileWriter() = default;
 
-std::string MatrixFileWriter::filePath() {
+std::string MatrixFileWriter::filePath() const {
     return _filePath;
 };
 
-std::filesystem::path MatrixFileWriter::fullFilePath() {
+std::filesystem::path MatrixFileWriter::fullFilePath() const {
     return _fullFilePath;
 };
 
@@ -38,7 +38,7 @@ int MatrixFileWriter::fileCols() const {
 };
 
 void MatrixFileWriter::_createDirectory() const {
-    const std::filesystem::path dir = _fullFilePath.parent_path();
+    const std::filesystem::path dir = fullFilePath().parent_path();
     if (!std::filesystem::exists(dir)) {
         try {
             std::filesystem::create_directories(dir);
@@ -60,17 +60,17 @@ void MatrixFileWriter::writeMatrixToFile(const std::string& filePath, const Matr
     _fileCols = matrix->cols();
 
     std::ofstream outputFile;
-    outputFile.open(_fullFilePath);
+    outputFile.open(fullFilePath());
 
     outputFile << std::fixed << std::setprecision(6);
-    for (int row = 0; row < _fileRows; row++) {
-        for (int col = 0; col < _fileCols; col++) {
+    for (int row = 0; row < fileRows(); row++) {
+        for (int col = 0; col < fileCols(); col++) {
             outputFile << _matrix->get(row, col);
-            if (col < _fileCols - 1) {
+            if (col < fileCols() - 1) {
                 outputFile << ",";
             }
         }
-        if (row < _fileRows - 1) {
+        if (row < fileRows() - 1) {
             outputFile << std::endl;
         }
     }

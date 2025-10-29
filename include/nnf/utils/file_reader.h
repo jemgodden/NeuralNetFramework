@@ -12,7 +12,7 @@ class MatrixFileReader {
 
         std::filesystem::path _fullFilePath;
 
-        bool _header;
+        bool _headerRow;
 
         int _fileRows;
 
@@ -27,9 +27,9 @@ class MatrixFileReader {
 
         ~MatrixFileReader();
 
-        std::string filePath();
+        std::string filePath() const;
 
-        std::filesystem::path fullFilePath();
+        std::filesystem::path fullFilePath() const;
 
         bool headerRow() const;
 

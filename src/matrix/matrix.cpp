@@ -12,7 +12,7 @@ Matrix::Matrix(const int rows, const int cols, const double value) {
     _rows = rows;
     _cols = cols;
 
-    _values = static_cast<double *>(malloc(_rows * _cols * sizeof(double)));
+    _values = static_cast<double *>(malloc(rows * cols * sizeof(double)));
     setAll(value);
 };
 
@@ -29,18 +29,18 @@ int Matrix::cols() const {
 };
 
 void Matrix::setAll(const double value) const {
-    for (int i=0; i<_rows * _cols; i++) {
+    for (int i=0; i<rows() * cols(); i++) {
         *(_values + i) = value;
     }
 };
 
 void Matrix::setIdentity() const {
     try {
-        if (_rows != _cols) {
+        if (rows() != cols()) {
             throw IllegalMatrixOperation("Matrix is not square.");
         }
-        for (int i=0; i<_rows * _cols; i++) {
-            if (i % (_rows + 1) == 0) {
+        for (int i=0; i<rows() * cols(); i++) {
+            if (i % (rows() + 1) == 0) {
                 *(_values + i) = 1;
             }
             else {
@@ -55,24 +55,24 @@ void Matrix::setIdentity() const {
 };
 
 void Matrix::setAscending() const {
-    for (int i=0; i<_rows * _cols; i++) {
+    for (int i=0; i<rows() * cols(); i++) {
         *(_values + i) = i+1;
     }
 };
 
 void Matrix::set(const int row, const int col, const double value) const {
-    *(_values + (row * _cols) + col) = value;
+    *(_values + (row * cols()) + col) = value;
 };
 
 double Matrix::get(const int row, const int col) const {
     try {
-        if (row >= _rows) {
+        if (row >= rows()) {
             throw std::out_of_range("Row index is out of range of matrix.");
         }
-        if (col >= _cols) {
+        if (col >= cols()) {
             throw std::out_of_range("Column index is out of range matrix.");
         }
-        return *(_values + (row * _cols) + col);
+        return *(_values + (row * cols()) + col);
     }
     catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
@@ -94,37 +94,37 @@ void Matrix::randomise(const int n) const {
     const double min = -1.0 / sqrt(n);
     const double max = -min;
 
-    for (int i=0; i<_rows * _cols; i++) {
+    for (int i=0; i<rows() * cols(); i++) {
         *(_values + i) = _sampleUniformDistribution(min, max);
     }
 };
 
 void Matrix::scale(const double scalar) const {
-    for (int i=0; i<_rows * _cols; i++) {
+    for (int i=0; i<rows() * cols(); i++) {
         *(_values + i) *= scalar;
     }
 };
 
 void Matrix::addScalar(const double scalar) const {
-    for (int i=0; i<_rows * _cols; i++) {
+    for (int i=0; i<rows() * cols(); i++) {
         *(_values + i) += scalar;
     }
 };
 
 void Matrix::subtractScalar(const double scalar) const {
-    for (int i=0; i<_rows * _cols; i++) {
+    for (int i=0; i<rows() * cols(); i++) {
         *(_values + i) -= scalar;
     }
 };
 
 Matrix* Matrix::add(const Matrix* input) const {
     try {
-        if (_rows != input->rows() || _cols != input->cols()) {
+        if (rows() != input->rows() || cols() != input->cols()) {
             throw IllegalMatrixOperation("Matrix dimensions do not match.");
         }
-        Matrix* output = new Matrix(_rows, _cols);
-        for (int i=0; i<_rows; i++) {
-            for (int j=0; j<_cols; j++) {
+        Matrix* output = new Matrix(rows(), cols());
+        for (int i=0; i<rows(); i++) {
+            for (int j=0; j<cols(); j++) {
                 const double value = get(i, j) + input->get(i, j);
                 output->set(i, j, value);
             }
@@ -139,12 +139,12 @@ Matrix* Matrix::add(const Matrix* input) const {
 
 Matrix* Matrix::subtract(const Matrix* input) const {
     try {
-        if (_rows != input->rows() || _cols != input->cols()) {
+        if (rows() != input->rows() || cols() != input->cols()) {
             throw IllegalMatrixOperation("Matrix dimensions do not match.");
         }
-        Matrix* output = new Matrix(_rows, _cols);
-        for (int i=0; i<_rows; i++) {
-            for (int j=0; j<_cols; j++) {
+        Matrix* output = new Matrix(rows(), cols());
+        for (int i=0; i<rows(); i++) {
+            for (int j=0; j<cols(); j++) {
                 const double value = get(i, j) - input->get(i, j);
                 output->set(i, j, value);
             }
@@ -159,12 +159,12 @@ Matrix* Matrix::subtract(const Matrix* input) const {
 
 Matrix* Matrix::multiply(const Matrix* input) const {
     try {
-        if (_rows != input->rows() || _cols != input->cols()) {
+        if (rows() != input->rows() || cols() != input->cols()) {
             throw IllegalMatrixOperation("Matrix dimensions do not match.");
         }
-        Matrix* output = new Matrix(_rows, _cols);
-        for (int i=0; i<_rows; i++) {
-            for (int j=0; j<_cols; j++) {
+        Matrix* output = new Matrix(rows(), cols());
+        for (int i=0; i<rows(); i++) {
+            for (int j=0; j<cols(); j++) {
                 const double value = get(i, j) * input->get(i, j);
                 output->set(i, j, value);
             }
@@ -183,10 +183,10 @@ Matrix* Matrix::dot(const Matrix* input) const {
             throw IllegalMatrixOperation("Matrix dimensions are not compatible.");
         }
         Matrix* output = new Matrix(_rows, input->cols());
-        for (int i=0; i<_rows; i++) {
+        for (int i=0; i<rows(); i++) {
             for (int j=0; j<input->cols(); j++) {
                 double sum = 0;
-                for (int k=0; k<_cols; k++) {
+                for (int k=0; k<cols(); k++) {
                     sum += get(i, k) * input->get(k, j);
                 }
                 output->set(i, j, sum);
@@ -201,14 +201,14 @@ Matrix* Matrix::dot(const Matrix* input) const {
 };
 
 void Matrix::apply(double (*func)(double)) const {
-    for (int i=0; i<_rows * _cols; i++) {
+    for (int i=0; i<rows() * cols(); i++) {
         *(_values + i) = (*func)(*(_values + i));
     }
 };
 
 void Matrix::transpose() const {
-    for (int i=0; i<_rows; i++) {
-        for (int j=0; j<_cols; j++) {
+    for (int i=0; i<rows(); i++) {
+        for (int j=0; j<cols(); j++) {
             if (j > i) {
                 const double saved = get(i, j);
                 set(i, j, get(j, i));
@@ -238,13 +238,13 @@ int Matrix::argmax() const {
 };
 
 Matrix* Matrix::row(const int row) const {
-    if (row < 0 || row >= this->rows()) {
+    if (row < 0 || row >= rows()) {
         throw IllegalMatrixOperation("Given row index is invalid.");
     }
 
-    Matrix* slice = new Matrix(1, this->cols());
+    Matrix* slice = new Matrix(1, cols());
 
-    for (int i=0; i<this->cols(); i++) {
+    for (int i=0; i<cols(); i++) {
         slice->set(0, i, get(row, i));
     }
 
@@ -252,13 +252,13 @@ Matrix* Matrix::row(const int row) const {
 };
 
 Matrix* Matrix::col(const int col) const {
-    if (col < 0 || col >= this->cols()) {
+    if (col < 0 || col >= cols()) {
         throw IllegalMatrixOperation("Given col index is invalid.");
     }
 
-    Matrix* slice = new Matrix(this->rows(), 1);
+    Matrix* slice = new Matrix(rows(), 1);
 
-    for (int i=0; i<this->rows(); i++) {
+    for (int i=0; i<rows(); i++) {
         slice->set(i, 0, get(i, col));
     }
 
@@ -266,19 +266,19 @@ Matrix* Matrix::col(const int col) const {
 };
 
 std::tuple<Matrix*, Matrix*> Matrix::rowSlice(const int row) const {
-    if (row < 0 || row >= this->rows()) {
+    if (row < 0 || row >= rows()) {
         throw IllegalMatrixOperation("Given row index is invalid.");
     }
 
-    Matrix* slice = new Matrix(1, this->cols());
-    Matrix* nonSlice = new Matrix(this->rows()-1, this->cols());
+    Matrix* slice = new Matrix(1, cols());
+    Matrix* nonSlice = new Matrix(rows()-1, cols());
 
     int passedSliceRow = FALSE;
-    for (int i=0; i<this->rows(); i++) {
+    for (int i=0; i<rows(); i++) {
         if (i == row) {
             passedSliceRow = TRUE;
         }
-        for (int j=0; j<this->cols(); j++) {
+        for (int j=0; j<cols(); j++) {
             if (i == row) {
                 slice->set(0, j, get(i, j));
             }
@@ -291,16 +291,16 @@ std::tuple<Matrix*, Matrix*> Matrix::rowSlice(const int row) const {
 };
 
 std::tuple<Matrix*, Matrix*> Matrix::colSlice(const int col) const {
-    if (col < 0 || col >= this->cols()) {
+    if (col < 0 || col >= cols()) {
         throw IllegalMatrixOperation("Given col index is invalid.");
     }
 
-    Matrix* slice = new Matrix(this->rows(), 1);
-    Matrix* nonSlice = new Matrix(this->rows(), this->cols()-1);
+    Matrix* slice = new Matrix(rows(), 1);
+    Matrix* nonSlice = new Matrix(rows(), cols()-1);
 
-    for (int i=0; i<this->rows(); i++) {
+    for (int i=0; i<rows(); i++) {
         int passedSliceCol = FALSE;
-        for (int j=0; j<this->cols(); j++) {
+        for (int j=0; j<cols(); j++) {
             if (j == col) {
                 passedSliceCol = TRUE;
                 slice->set(i, 0, get(i, j));
@@ -314,8 +314,8 @@ std::tuple<Matrix*, Matrix*> Matrix::colSlice(const int col) const {
 };
 
 void Matrix::print() const {
-    for (int i = 0; i<_rows; i++) {
-        for (int j = 0; j<_cols; j++) {
+    for (int i = 0; i<rows(); i++) {
+        for (int j = 0; j<cols(); j++) {
             std::cout << get(i, j) << ' ';
         }
         std::cout << std::endl;

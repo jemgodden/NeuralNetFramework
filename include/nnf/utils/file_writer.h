@@ -25,9 +25,9 @@ class MatrixFileWriter {
 
         ~MatrixFileWriter();
 
-        std::string filePath();
+        std::string filePath() const;
 
-        std::filesystem::path fullFilePath();
+        std::filesystem::path fullFilePath() const;
 
         const Matrix *matrix() const;
 
