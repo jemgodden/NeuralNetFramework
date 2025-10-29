@@ -2,5 +2,6 @@
 /cmake-build-debug
 /build
 /external/*/
+/models/*
 
 plan.md
