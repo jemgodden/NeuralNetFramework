@@ -137,6 +137,46 @@ Matrix* Matrix::add(const Matrix* input) const {
     }
 };
 
+Matrix* Matrix::rowwiseAdd(const Matrix* input) const {
+    try {
+        if (cols() != input->cols()) {
+            throw IllegalMatrixOperation("Matrix dimensions are invalid.");
+        }
+        Matrix* output = new Matrix(rows(), cols());
+        for (int i=0; i<rows(); i++) {
+            for (int j=0; j<cols(); j++) {
+                const double value = get(i, j) + input->get(0, j);
+                output->set(i, j, value);
+            }
+        }
+        return output;
+    }
+    catch (std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        throw;
+    }
+};
+
+Matrix* Matrix::columnwiseAdd(const Matrix* input) const {
+    try {
+        if (rows() != input->rows()) {
+            throw IllegalMatrixOperation("Matrix dimensions are invalid.");
+        }
+        Matrix* output = new Matrix(rows(), cols());
+        for (int i=0; i<rows(); i++) {
+            for (int j=0; j<cols(); j++) {
+                const double value = get(i, j) + input->get(i, 0);
+                output->set(i, j, value);
+            }
+        }
+        return output;
+    }
+    catch (std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        throw;
+    }
+};
+
 Matrix* Matrix::subtract(const Matrix* input) const {
     try {
         if (rows() != input->rows() || cols() != input->cols()) {
@@ -179,10 +219,10 @@ Matrix* Matrix::multiply(const Matrix* input) const {
 
 Matrix* Matrix::dot(const Matrix* input) const {
     try {
-        if (_cols != input->rows()) {
+        if (cols() != input->rows()) {
             throw IllegalMatrixOperation("Matrix dimensions are not compatible.");
         }
-        Matrix* output = new Matrix(_rows, input->cols());
+        Matrix* output = new Matrix(rows(), input->cols());
         for (int i=0; i<rows(); i++) {
             for (int j=0; j<input->cols(); j++) {
                 double sum = 0;
@@ -218,23 +258,50 @@ void Matrix::transpose() const {
     }
 };
 
-int Matrix::argmax() const {
+Matrix* Matrix::columnwiseArgmax() const {
     if (cols() > 1) {
-        throw IllegalMatrixOperation("Argmax can only be done on a column vector.");
+        throw IllegalMatrixOperation("Column-wise Argmax should only be done on a matrix with multiple rows.");
     }
 
-    double curMax = get(0, 0);;
-    int curMaxIndex = 0;
+    Matrix* output = new Matrix(1, cols());
 
-    for (int i=1; i<rows(); i++) {
-        const double curElement = get(i, 0);
-        if (curElement > curMax) {
-            curMax = curElement;
-            curMaxIndex = i;
+    for (int j=0; j<cols(); j++) {
+        double colMax = get(0, j);
+        int colMaxIndex = 0;
+        for (int i=1; i<rows(); i++) {
+            const double colElement = get(i, j);
+            if (colElement > colMax) {
+                colMax = colElement;
+                colMaxIndex = i;
+            }
         }
+        output->set(0, j, (colMaxIndex * 1.0)); // Multiplying by 1.0 to cast to double.
     }
 
-    return curMaxIndex;
+    return output;
+};
+
+Matrix* Matrix::rowwiseArgmax() const {
+    if (rows() > 1) {
+        throw IllegalMatrixOperation("Row-wise Argmax should only be done on a matrix with multiple rows.");
+    }
+
+    Matrix* output = new Matrix(rows(), 1);
+
+    for (int i=0; i<rows(); i++) {
+        double rowMax = get(i, 0);
+        int rowMaxIndex = 0;
+        for (int j=1; j<cols(); j++) {
+            const double rowElement = get(i, j);
+            if (rowElement > rowMax) {
+                rowMax = rowElement;
+                rowMaxIndex = j;
+            }
+        }
+        output->set(i, 0, (rowMaxIndex * 1.0)); // Multiplying by 1.0 to cast to double.
+    }
+
+    return output;
 };
 
 Matrix* Matrix::row(const int row) const {

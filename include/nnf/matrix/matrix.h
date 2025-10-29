@@ -41,6 +41,10 @@ class Matrix {
         void subtractScalar(double scalar) const;
         
         Matrix* add(const Matrix* input) const;
+
+        Matrix* rowwiseAdd(const Matrix* input) const;
+
+        Matrix* columnwiseAdd(const Matrix* input) const;
         
         Matrix* subtract(const Matrix* input) const;
         
@@ -52,7 +56,9 @@ class Matrix {
         
         void transpose() const;
 
-        int argmax() const;
+        Matrix* columnwiseArgmax() const;
+
+        Matrix* rowwiseArgmax() const;
 
         Matrix* row(int row) const;
 
