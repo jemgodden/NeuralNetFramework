@@ -1,18 +1,14 @@
 #pragma once
 
 
-static double square(double value);
+double sigmoid(double value);
 
-static double squareDerivative(double value);
+double sigmoidDerivative(double value);
 
-static double sigmoid(double value);
+double Relu(double value);
 
-static double sigmoidDerivative(double value);
+double ReluDerivative(double value);
 
-static double Relu(double value);
+double Tanh(double value);
 
-static double ReluDerivative(double value);
-
-static double Tanh(double value);
-
-static double TanhDerivative(double value);
+double TanhDerivative(double value);
