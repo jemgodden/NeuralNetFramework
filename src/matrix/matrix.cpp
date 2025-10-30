@@ -111,9 +111,47 @@ void Matrix::addScalar(const double scalar) const {
     }
 };
 
-void Matrix::subtractScalar(const double scalar) const {
-    for (int i=0; i<rows() * cols(); i++) {
-        *(_values + i) -= scalar;
+Matrix* Matrix::rowwiseSum() const {
+    try {
+        if (cols() == 1) {
+            throw IllegalMatrixOperation("Row-wise summations should only be done on a matrix with multiple columns");
+        }
+
+        Matrix* output = new Matrix(rows(), 1);
+        for (int i=0; i<rows(); i++) {
+            double curSum = 0.0;
+            for (int j=0; j<cols(); j++) {
+                curSum += get(i, j);
+            }
+            output->set(i, 0, curSum);
+        }
+        return output;
+    }
+    catch (std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        throw;
+    }
+};
+
+Matrix* Matrix::columnwiseSum() const {
+    try {
+        if (rows() == 1) {
+            throw IllegalMatrixOperation("Column-wise summations should only be done on a matrix with multiple rows");
+        }
+
+        Matrix* output = new Matrix(1, cols());
+        for (int j=0; j<cols(); j++) {
+            double curSum = 0.0;
+            for (int i=0; i<rows(); i++) {
+                curSum += get(i, j);
+            }
+            output->set(0, j, curSum);
+        }
+        return output;
+    }
+    catch (std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        throw;
     }
 };
 
@@ -217,6 +255,46 @@ Matrix* Matrix::multiply(const Matrix* input) const {
     }
 };
 
+Matrix* Matrix::rowwiseMultiply(const Matrix* input) const {
+    try {
+        if (input->rows() != 1 || cols() != input->cols()) {
+            throw IllegalMatrixOperation("Matrix dimensions do not match.");
+        }
+        Matrix* output = new Matrix(rows(), cols());
+        for (int i=0; i<rows(); i++) {
+            for (int j=0; j<cols(); j++) {
+                const double value = get(i, j) * input->get(0, j);
+                output->set(i, j, value);
+            }
+        }
+        return output;
+    }
+    catch (std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        throw;
+    }
+};
+
+Matrix* Matrix::columnwiseMultiply(const Matrix* input) const {
+    try {
+        if (rows() != input->rows() || input->cols() != 1) {
+            throw IllegalMatrixOperation("Matrix dimensions do not match.");
+        }
+        Matrix* output = new Matrix(rows(), cols());
+        for (int i=0; i<rows(); i++) {
+            for (int j=0; j<cols(); j++) {
+                const double value = get(i, j) * input->get(i, 0);
+                output->set(i, j, value);
+            }
+        }
+        return output;
+    }
+    catch (std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        throw;
+    }
+};
+
 Matrix* Matrix::dot(const Matrix* input) const {
     try {
         if (cols() != input->rows()) {
@@ -258,29 +336,6 @@ void Matrix::transpose() const {
     }
 };
 
-Matrix* Matrix::columnwiseArgmax() const {
-    if (cols() > 1) {
-        throw IllegalMatrixOperation("Column-wise Argmax should only be done on a matrix with multiple rows.");
-    }
-
-    Matrix* output = new Matrix(1, cols());
-
-    for (int j=0; j<cols(); j++) {
-        double colMax = get(0, j);
-        int colMaxIndex = 0;
-        for (int i=1; i<rows(); i++) {
-            const double colElement = get(i, j);
-            if (colElement > colMax) {
-                colMax = colElement;
-                colMaxIndex = i;
-            }
-        }
-        output->set(0, j, (colMaxIndex * 1.0)); // Multiplying by 1.0 to cast to double.
-    }
-
-    return output;
-};
-
 Matrix* Matrix::rowwiseArgmax() const {
     if (rows() > 1) {
         throw IllegalMatrixOperation("Row-wise Argmax should only be done on a matrix with multiple rows.");
@@ -299,6 +354,29 @@ Matrix* Matrix::rowwiseArgmax() const {
             }
         }
         output->set(i, 0, (rowMaxIndex * 1.0)); // Multiplying by 1.0 to cast to double.
+    }
+
+    return output;
+};
+
+Matrix* Matrix::columnwiseArgmax() const {
+    if (cols() > 1) {
+        throw IllegalMatrixOperation("Column-wise Argmax should only be done on a matrix with multiple rows.");
+    }
+
+    Matrix* output = new Matrix(1, cols());
+
+    for (int j=0; j<cols(); j++) {
+        double colMax = get(0, j);
+        int colMaxIndex = 0;
+        for (int i=1; i<rows(); i++) {
+            const double colElement = get(i, j);
+            if (colElement > colMax) {
+                colMax = colElement;
+                colMaxIndex = i;
+            }
+        }
+        output->set(0, j, (colMaxIndex * 1.0)); // Multiplying by 1.0 to cast to double.
     }
 
     return output;
@@ -378,6 +456,16 @@ std::tuple<Matrix*, Matrix*> Matrix::colSlice(const int col) const {
         }
     }
     return {slice, nonSlice};
+};
+
+Matrix* Matrix::deepCopy() const {
+    Matrix* output = new Matrix(rows(), cols());
+    for (int i = 0; i<rows(); i++) {
+        for (int j = 0; j<cols(); j++) {
+            output->set(i, j, get(i, j));
+        }
+    }
+    return output;
 };
 
 void Matrix::print() const {

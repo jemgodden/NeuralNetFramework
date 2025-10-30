@@ -37,28 +37,34 @@ class Matrix {
         void scale(double scalar) const;
         
         void addScalar(double scalar) const;
-        
-        void subtractScalar(double scalar) const;
+
+        Matrix *rowwiseSum() const;
+
+        Matrix *columnwiseSum() const;
         
         Matrix* add(const Matrix* input) const;
 
         Matrix* rowwiseAdd(const Matrix* input) const;
 
         Matrix* columnwiseAdd(const Matrix* input) const;
-        
+
         Matrix* subtract(const Matrix* input) const;
         
         Matrix* multiply(const Matrix* input) const;
-        
+
+        Matrix* rowwiseMultiply(const Matrix* input) const;
+
+        Matrix* columnwiseMultiply(const Matrix* input) const;
+
         Matrix* dot(const Matrix* input) const;
         
         void apply(double (*func)(double)) const;
         
         void transpose() const;
 
-        Matrix* columnwiseArgmax() const;
-
         Matrix* rowwiseArgmax() const;
+
+        Matrix* columnwiseArgmax() const;
 
         Matrix* row(int row) const;
 
@@ -67,6 +73,8 @@ class Matrix {
         std::tuple<Matrix*, Matrix*> rowSlice(int row) const;
 
         std::tuple<Matrix*, Matrix*> colSlice(int col) const;
+
+        Matrix *deepCopy() const;
 
         void print() const;
 };
