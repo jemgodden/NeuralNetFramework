@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "../matrix/matrix.h"
 
 
@@ -7,38 +9,46 @@ class Network {
     private:
         int _inputNodes;
 
-        int _hiddenLayers;
-
         int _hiddenNodes;
 
         int _outputNodes;
 
-        double _learningRate;
+        Matrix* _inputToHiddenWeights;
 
-        Matrix* _hiddenWeights;
+        Matrix* _inputToHiddenBiases;
 
-        Matrix* _outputWeights;
+        Matrix* _hiddenToOutputWeights;
+
+        Matrix* _hiddenToOutputBiases;
+
+        Matrix* _hiddenLayerOutput;
+
+        void _initialiseMatrices();
+
+        static std::tuple<Matrix*, Matrix*> _splitLabelsMatrix(const Matrix *inputMatrix, int labelColumnIndex);
+
+        void _setHiddenLayerOutput(Matrix *hiddenLayerOutput);
+
+        Matrix* _feedForward(const Matrix *trainMatrix);
+
+        void _backPropagate(const Matrix* trainMatrix, const Matrix* actualLabelMatrix, const Matrix* predictedLabelMatrix, double learningRate);
 
     public:
-        Network(int inputNodes, int hiddenLayers, int hiddenNodes, int outputNodes, double learningRate);
+        Network(int inputNodes, int outputNodes, int hiddenNodes=10);
         
         ~Network();
-        
-        int inputNodes() const;
-        
-        int hiddenLayers() const;
 
-        int hiddenNodes() const;
+        int inputNodes() const;
 
         int outputNodes() const;
 
-        double learningRate() const;
+        int hiddenNodes() const;
 
-        void train();
+        void train(const Matrix* trainMatrix, int labelColumnIndex=-1, int epochs=4000, double learningRate=0.1);
 
-        void predict();
+        double predict(const Matrix* testMatrix, int labelColumnIndex=-1);
 
-        void save();
+        void save(const std::string &modelName="") const;
 
-        void load();
+        void load(const std::string &modelName);
 };
