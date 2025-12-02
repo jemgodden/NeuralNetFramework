@@ -1,9 +1,9 @@
 #include <iostream>
 #include <cmath>
 
-#include "../../include/nnf/matrix/matrix.h"
-#include "../../include/nnf/network/costs.h"
-#include "../../include/nnf/utils/exception.h"
+#include "../../include/nnf/network/costs.hpp"
+#include "../../include/nnf/matrix/matrix.hpp"
+#include "../../include/nnf/utils/exception.hpp"
 
 
 void checkContinuousCostFunctionInputs(const Matrix* actual, const Matrix* predicted) {
@@ -80,7 +80,7 @@ Matrix* categoricalCrossEntropyLossDerivative(const Matrix* actual, const Matrix
     Matrix* output = new Matrix(actual->rows(), 1);
     for (int i=0; i<actual->rows(); i++) {
         const int actualIndex = static_cast<int>(actual->get(i, 0)) - 1;
-        output->set(i, 1, -1.0 / predicted->get(i, actualIndex));
+        output->set(i, 0, -1.0 / predicted->get(i, actualIndex));
     }
     return output;
 };

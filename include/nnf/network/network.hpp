@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "../matrix/matrix.h"
+#include "../matrix/matrix.hpp"
 
 
 class Network {
@@ -22,6 +22,14 @@ class Network {
         Matrix* _hiddenToOutputBiases;
 
         Matrix* _hiddenLayerOutput;
+
+        void _setInputToHiddenWeights(Matrix* newMatrix);
+
+        void _setInputToHiddenBiases(Matrix* newMatrix);
+
+        void _setHiddenToOutputWeights(Matrix* newMatrix);
+
+        void _setHiddenToOutputBiases(Matrix* newMatrix);
 
         void _initialiseMatrices();
 

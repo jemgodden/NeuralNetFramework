@@ -1,3 +1,3 @@
 #include <gtest/gtest.h>
 
-#include "../include/nnf/network/network.h"
+#include "../include/nnf/network/network.hpp"

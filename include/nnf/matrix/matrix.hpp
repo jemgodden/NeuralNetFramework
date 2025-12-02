@@ -59,8 +59,8 @@ class Matrix {
         Matrix* dot(const Matrix* input) const;
         
         void apply(double (*func)(double)) const;
-        
-        void transpose() const;
+
+        Matrix *transpose() const;
 
         Matrix* rowwiseArgmax() const;
 

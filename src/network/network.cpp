@@ -1,11 +1,12 @@
 #include <iostream>
 
-#include "../../include/nnf/network/network.h"
-#include "../../include/nnf/matrix/matrix.h"
-#include "../../include/nnf/network/activations.h"
-#include "../../include/nnf/network/costs.h"
-#include "../../include/nnf/utils/file_writer.h"
-#include "../../include/nnf/utils/file_reader.h"
+#include "../../include/nnf/matrix/matrix.hpp"
+#include "../../include/nnf/network/network.hpp"
+#include "../../include/nnf/network/activations.hpp"
+#include "../../include/nnf/network/costs.hpp"
+#include "costs.cpp"
+#include "../../include/nnf/utils/file_writer.hpp"
+#include "../../include/nnf/utils/file_reader.hpp"
 
 
 Network::Network(const int inputNodes, const int outputNodes, const int hiddenNodes) {
@@ -19,7 +20,7 @@ Network::Network(const int inputNodes, const int outputNodes, const int hiddenNo
     _hiddenToOutputBiases = nullptr;
 
     _hiddenLayerOutput = nullptr;
-} ;
+};
 
 Network::~Network() {
     free(_inputToHiddenWeights);
@@ -40,6 +41,26 @@ int Network::outputNodes() const {
 
 int Network::hiddenNodes() const {
     return _hiddenNodes;
+};
+
+void Network::_setInputToHiddenWeights(Matrix* newMatrix) {
+    free(_inputToHiddenWeights);
+    _inputToHiddenWeights = newMatrix;
+};
+
+void Network::_setInputToHiddenBiases(Matrix* newMatrix) {
+    free(_inputToHiddenBiases);
+    _inputToHiddenBiases = newMatrix;
+};
+
+void Network::_setHiddenToOutputWeights(Matrix* newMatrix) {
+    free(_hiddenToOutputWeights);
+    _hiddenToOutputWeights = newMatrix;
+};
+
+void Network::_setHiddenToOutputBiases(Matrix* newMatrix) {
+    free(_hiddenToOutputBiases);
+    _hiddenToOutputBiases = newMatrix;
 };
 
 void Network::_initialiseMatrices() {
@@ -79,7 +100,6 @@ Matrix* Network::_feedForward(const Matrix* trainMatrix) { // (i, n)
     Matrix* outputHiddenLayerBiases = outputHiddenLayerWeights->columnwiseAdd(_hiddenToOutputBiases); // (o, n)
     outputHiddenLayerBiases->apply(&sigmoid); // (o, n)
     delete outputHiddenLayerWeights;
-
     return outputHiddenLayerBiases; // (o, n)
 };
 
@@ -98,88 +118,108 @@ void Network::_backPropagate(const Matrix* trainMatrix, const Matrix* actualLabe
     const Matrix* hiddenError = outputDelta->dot(hiddenToOutputWeightsCopy); // (n, h)
     const Matrix* hiddenLayerOutputCopy = _hiddenLayerOutput->deepCopy(); // (h, n)
     hiddenLayerOutputCopy->apply(&sigmoidDerivative); // (h, n)
-    hiddenLayerOutputCopy->transpose(); // (n, h)
-    const Matrix* hiddenDelta = hiddenError->multiply(hiddenLayerOutputCopy); // (n, h)
+    const Matrix* transposedHiddenLayerOutputCopy = hiddenLayerOutputCopy->transpose(); // (n, h)
+    const Matrix* hiddenDelta = hiddenError->multiply(transposedHiddenLayerOutputCopy); // (n, h)
     delete hiddenToOutputWeightsCopy;
     delete hiddenError;
     delete hiddenLayerOutputCopy;
+    delete transposedHiddenLayerOutputCopy;
 
     // Update Weights and Biases
     // Updating hidden-output weights.
     const Matrix* hiddenToOutputWeightsDelta = _hiddenLayerOutput->dot(outputDelta); // (h, o)
     hiddenToOutputWeightsDelta->scale(learningRate); // (h, o)
-    hiddenToOutputWeightsDelta->transpose(); // (o, h)
-    _hiddenToOutputWeights = _hiddenToOutputWeights->add(hiddenToOutputWeightsDelta); // (o, h)
+    const Matrix* transposedHiddenToOutputWeightsDelta = hiddenToOutputWeightsDelta->transpose(); // (o, h)
+    Matrix* transformedHiddenToOutputWeights = _hiddenToOutputWeights->add(transposedHiddenToOutputWeightsDelta); // (o, h)
+    _setHiddenToOutputWeights(transformedHiddenToOutputWeights);
     delete hiddenToOutputWeightsDelta;
+    delete transposedHiddenToOutputWeightsDelta;
 
     // Updating hidden-output biases.
-    const Matrix* hiddenToOutputBiasesDelta = outputDelta->rowwiseSum(); // (1, o)
+    const Matrix* hiddenToOutputBiasesDelta = outputDelta->columnwiseSum(); // (1, o)
     hiddenToOutputBiasesDelta->scale(learningRate); // (1, o)
-    hiddenToOutputBiasesDelta->transpose(); // (o, 1)
-    _hiddenToOutputBiases = _hiddenToOutputBiases->add(hiddenToOutputBiasesDelta); // (o, 1)
+    const Matrix* transposedHiddenToOutputBiasesDelta = hiddenToOutputBiasesDelta->transpose(); // (o, 1)
+    Matrix* transformedHiddenToOutputBiases = _hiddenToOutputBiases->add(transposedHiddenToOutputBiasesDelta); // (o, 1)
+    _setHiddenToOutputBiases(transformedHiddenToOutputBiases);
     delete outputDelta;
     delete hiddenToOutputBiasesDelta;
+    delete transposedHiddenToOutputBiasesDelta;
 
     // Updating input-hidden weights.
     const Matrix* trainMatrixCopy = trainMatrix->deepCopy(); // (i, n)
     const Matrix* inputToHiddenWeightsDelta = trainMatrixCopy->dot(hiddenDelta); // (i, h)
     inputToHiddenWeightsDelta->scale(learningRate); // (i, h)
-    inputToHiddenWeightsDelta->transpose(); // (h, i)
-    _inputToHiddenWeights = _inputToHiddenWeights->add(inputToHiddenWeightsDelta); // (h, i)
+    const Matrix* transposedInputToHiddenWeightsDelta = inputToHiddenWeightsDelta->transpose(); // (h, i)
+    Matrix* transformedInputToHiddenWeights = _inputToHiddenWeights->add(transposedInputToHiddenWeightsDelta); // (h, i)
+    _setInputToHiddenWeights(transformedInputToHiddenWeights);
     delete trainMatrixCopy;
     delete inputToHiddenWeightsDelta;
+    delete transposedInputToHiddenWeightsDelta;
 
     // Updating input-hidden biases.
     const Matrix* inputToHiddenBiasesDelta = hiddenDelta->columnwiseSum(); // (1, h)
     inputToHiddenBiasesDelta->scale(learningRate); // (1, h)
-    inputToHiddenBiasesDelta->transpose(); // (h, 1)
-    _inputToHiddenBiases = _inputToHiddenBiases->add(inputToHiddenBiasesDelta); // (h, 1)
+    const Matrix* transposedInputToHiddenBiasesDelta = inputToHiddenBiasesDelta->transpose(); // (h, 1)
+    Matrix* transformedInputToHiddenBiases = _inputToHiddenBiases->add(transposedInputToHiddenBiasesDelta); // (h, 1)
+    _setInputToHiddenBiases(transformedInputToHiddenBiases);
     delete hiddenDelta;
     delete inputToHiddenBiasesDelta;
+    delete transposedInputToHiddenBiasesDelta;
 };
 
 void Network::train(const Matrix* trainMatrix, const int labelColumnIndex, const int epochs, const double learningRate) { // (n, i+1)
-    auto [trainData, trainLabels] = _splitLabelsMatrix(trainMatrix, labelColumnIndex); // (n, i), (n, 1)
-    if (trainData->rows() != inputNodes()) {
-        throw std::invalid_argument("Input matrix must have the same number of nodes as stated with inputNodes at network creation.");
+    auto [trainLabels, trainData] = _splitLabelsMatrix(trainMatrix, labelColumnIndex); // (n, i), (n, 1)
+    if (trainData->cols() != inputNodes()) {
+        throw std::invalid_argument("Input matrix must have the same number of columns as stated with inputNodes at network creation.");
     }
 
-    trainData->transpose(); // (i, n)
+    // std::cout << "trainData: (" << trainData->rows() << ", " << trainData->cols() << ")" << std::endl;
+    // std::cout << "hello" << std::endl;
+
+    const Matrix* transposedTrainData = trainData->transpose(); // (i, n)
+    delete trainData;
     _initialiseMatrices();
 
-    for (int epoch=0; epoch<epochs; epoch++) {
-        const Matrix* predictedLabels = _feedForward(trainData); // (o, n)
-        predictedLabels->transpose(); // (n, o)
-        _backPropagate(trainData, trainLabels, predictedLabels, learningRate);
+    for (int epoch=1; epoch<epochs+1; epoch++) {
+        const Matrix* predictedLabels = _feedForward(transposedTrainData); // (o, n)
+        const Matrix* transposedPredictedLabels = predictedLabels->transpose(); // (n, o)
+        delete predictedLabels;
 
-        if (epoch % 2000 == 0) {
-            const double loss = categoricalCrossEntropyLoss(trainLabels, predictedLabels);
+        _backPropagate(transposedTrainData, trainLabels, transposedPredictedLabels, learningRate);
+
+        if (epoch % 1000 == 0 || epoch == 1) {
+            const double loss = categoricalCrossEntropyLoss(trainLabels, transposedPredictedLabels);
             std::cout << "Epoch: " << epoch << ", Loss: " << loss << std::endl;
         }
-        delete predictedLabels;
+        delete transposedPredictedLabels;
     }
+    delete trainLabels;
+    delete transposedTrainData;
 };
 
-double Network::predict(const Matrix* testMatrix, const int labelColumnIndex) {
-    auto [testData, testLabels] = _splitLabelsMatrix(testMatrix, labelColumnIndex);
+double Network::predict(const Matrix* testMatrix, const int labelColumnIndex) { // (n, i+1)
+    auto [testLabels, testData] = _splitLabelsMatrix(testMatrix, labelColumnIndex); // (n, i), (n, 1)
+    const Matrix* transposedTestData = testData->transpose(); // (i, n)
+    delete testData;
 
-    const Matrix* unprocessedPredictedLabels = _feedForward(testData);
-    const Matrix* predictedLabels = unprocessedPredictedLabels->columnwiseArgmax();
-    predictedLabels->addScalar(1.0);
-    predictedLabels->transpose();
-
+    const Matrix* unprocessedPredictedLabels = _feedForward(transposedTestData); // (o, n)
+    const Matrix* predictedLabels = unprocessedPredictedLabels->columnwiseArgmax(); // (1, n)
+    predictedLabels->addScalar(1.0); // (1, n)
+    const Matrix* transposedPredictedLabels = predictedLabels->transpose(); // (n, 1)
     delete unprocessedPredictedLabels;
+    delete predictedLabels;
 
     const int numRows = testMatrix->rows();
     double numCorrect = 0.0;
 
     for (int i=0; i<numRows; i++) {
-        if (predictedLabels->get(i, 0) == testLabels->get(i, 0)) {
+        if (transposedPredictedLabels->get(i, 0) == testLabels->get(i, 0)) {
             numCorrect += 1;
         }
     }
 
-    delete predictedLabels;
+    delete testLabels;
+    delete transposedPredictedLabels;
     return 1.0 * (numCorrect / numRows);
 };
 
@@ -198,19 +238,19 @@ void Network::save(const std::string& modelName) const {
         modelDir = modelName;
     }
 
-    MatrixFileWriter* file_writer = new MatrixFileWriter();
-    file_writer->writeMatrixToFile("models/" + modelDir + "/input_to_hidden_weights.csv", _inputToHiddenWeights);
-    file_writer->writeMatrixToFile("models/" + modelDir + "/input_to_hidden_biases.csv", _inputToHiddenBiases);
-    file_writer->writeMatrixToFile("models/" + modelDir + "/hidden_to_output_weights.csv", _hiddenToOutputWeights);
-    file_writer->writeMatrixToFile("models/" + modelDir + "/hidden_to_output_biases.csv", _hiddenToOutputBiases);
+    MatrixFileWriter* fileWriter = new MatrixFileWriter();
+    fileWriter->writeMatrixToFile("models/" + modelDir + "/input_to_hidden_weights.csv", _inputToHiddenWeights);
+    fileWriter->writeMatrixToFile("models/" + modelDir + "/input_to_hidden_biases.csv", _inputToHiddenBiases);
+    fileWriter->writeMatrixToFile("models/" + modelDir + "/hidden_to_output_weights.csv", _hiddenToOutputWeights);
+    fileWriter->writeMatrixToFile("models/" + modelDir + "/hidden_to_output_biases.csv", _hiddenToOutputBiases);
 };
 
 void Network::load(const std::string& modelName) {
-    MatrixFileReader* file_reader = new MatrixFileReader();
-    _inputToHiddenWeights = file_reader->readMatrixFromFile("models/" + modelName + "/input_to_hidden_weights.csv");
-    _inputToHiddenBiases = file_reader->readMatrixFromFile("models/" + modelName + "/input_to_hidden_biases.csv");
-    _hiddenToOutputWeights = file_reader->readMatrixFromFile("models/" + modelName + "/hidden_to_output_weights.csv");
-    _hiddenToOutputBiases = file_reader->readMatrixFromFile("models/" + modelName + "/hidden_to_output_biases.csv");
+    MatrixFileReader* fileReader = new MatrixFileReader();
+    _inputToHiddenWeights = fileReader->readMatrixFromFile("models/" + modelName + "/input_to_hidden_weights.csv");
+    _inputToHiddenBiases = fileReader->readMatrixFromFile("models/" + modelName + "/input_to_hidden_biases.csv");
+    _hiddenToOutputWeights = fileReader->readMatrixFromFile("models/" + modelName + "/hidden_to_output_weights.csv");
+    _hiddenToOutputBiases = fileReader->readMatrixFromFile("models/" + modelName + "/hidden_to_output_biases.csv");
 
     _inputNodes = _inputToHiddenWeights->cols();
     _hiddenNodes = _inputToHiddenWeights->rows();

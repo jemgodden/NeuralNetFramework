@@ -4,8 +4,8 @@
 #include <tuple>
 #include <mach/boolean.h>
 
-#include "../../include/nnf/matrix/matrix.h"
-#include "../../include/nnf/utils/exception.h"
+#include "../../include/nnf/matrix/matrix.hpp"
+#include "../../include/nnf/utils/exception.hpp"
 
 
 Matrix::Matrix(const int rows, const int cols, const double value) {
@@ -324,21 +324,21 @@ void Matrix::apply(double (*func)(double)) const {
     }
 };
 
-void Matrix::transpose() const {
+Matrix* Matrix::transpose() const {
+    Matrix* output = new Matrix(cols(), rows());
+
     for (int i=0; i<rows(); i++) {
         for (int j=0; j<cols(); j++) {
-            if (j > i) {
-                const double saved = get(i, j);
-                set(i, j, get(j, i));
-                set(j, i, saved);
-            }
+            output->set(j, i, get(i, j));
         }
     }
+
+    return output;
 };
 
 Matrix* Matrix::rowwiseArgmax() const {
-    if (rows() > 1) {
-        throw IllegalMatrixOperation("Row-wise Argmax should only be done on a matrix with multiple rows.");
+    if (rows() < 2) {
+        throw IllegalMatrixOperation("Row-wise argmax should only be done on a matrix with multiple rows.");
     }
 
     Matrix* output = new Matrix(rows(), 1);
@@ -360,8 +360,8 @@ Matrix* Matrix::rowwiseArgmax() const {
 };
 
 Matrix* Matrix::columnwiseArgmax() const {
-    if (cols() > 1) {
-        throw IllegalMatrixOperation("Column-wise Argmax should only be done on a matrix with multiple rows.");
+    if (cols() < 2) {
+        throw IllegalMatrixOperation("Column-wise argmax should only be done on a matrix with multiple cols.");
     }
 
     Matrix* output = new Matrix(1, cols());
@@ -460,8 +460,8 @@ std::tuple<Matrix*, Matrix*> Matrix::colSlice(const int col) const {
 
 Matrix* Matrix::deepCopy() const {
     Matrix* output = new Matrix(rows(), cols());
-    for (int i = 0; i<rows(); i++) {
-        for (int j = 0; j<cols(); j++) {
+    for (int i=0; i<rows(); i++) {
+        for (int j=0; j<cols(); j++) {
             output->set(i, j, get(i, j));
         }
     }
@@ -469,8 +469,8 @@ Matrix* Matrix::deepCopy() const {
 };
 
 void Matrix::print() const {
-    for (int i = 0; i<rows(); i++) {
-        for (int j = 0; j<cols(); j++) {
+    for (int i=0; i<rows(); i++) {
+        for (int j=0; j<cols(); j++) {
             std::cout << get(i, j) << ' ';
         }
         std::cout << std::endl;

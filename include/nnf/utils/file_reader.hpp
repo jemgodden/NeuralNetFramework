@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <string>
 
-#include "../matrix/matrix.h"
+#include "../matrix/matrix.hpp"
 
 
 class MatrixFileReader {

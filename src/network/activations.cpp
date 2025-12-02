@@ -1,7 +1,7 @@
 #include <cmath>
 #include <algorithm>
 
-#include "../../include/nnf/network/activations.h"
+#include "../../include/nnf/network/activations.hpp"
 
 
 double sigmoid(const double value) {

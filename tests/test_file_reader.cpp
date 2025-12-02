@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../include/nnf/utils/file_reader.h"
+#include "../include/nnf/utils/file_reader.hpp"
 
 
 // Testing String to Double Conversion Function:

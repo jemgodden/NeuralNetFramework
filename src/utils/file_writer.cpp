@@ -3,8 +3,8 @@
 #include <fstream>
 #include <string>
 
-#include "../../include/nnf/utils/file_writer.h"
-#include "../../include/nnf/matrix/matrix.h"
+#include "../../include/nnf/matrix/matrix.hpp"
+#include "../../include/nnf/utils/file_writer.hpp"
 
 
 MatrixFileWriter::MatrixFileWriter() {

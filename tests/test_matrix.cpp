@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "../include/nnf/matrix/matrix.h"
-#include "../include/nnf/utils/exception.h"
+#include "../include/nnf/matrix/matrix.hpp"
+#include "../include/nnf/utils/exception.hpp"
 
 
 // Testing Matrix Functions:

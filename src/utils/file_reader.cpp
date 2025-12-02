@@ -3,9 +3,9 @@
 #include <fstream>
 #include <string>
 
-#include "../../include/nnf/utils/file_reader.h"
-#include "../../include/nnf/matrix/matrix.h"
-#include "../../include/nnf/utils/exception.h"
+#include "../../include/nnf/matrix/matrix.hpp"
+#include "../../include/nnf/utils/exception.hpp"
+#include "../../include/nnf/utils/file_reader.hpp"
 
 
 MatrixFileReader::MatrixFileReader() {
@@ -60,7 +60,7 @@ void MatrixFileReader::_getParameters() {
                 throw EmptyFile("Input file is empty.");
             }
 
-            int rowCount = 0;
+            int rowCount = 1;
             std::string nextLine;
 
             while (std::getline(inputFile, nextLine)) {
@@ -125,7 +125,7 @@ Matrix* MatrixFileReader::readMatrixFromFile(const std::string &filePath, const 
         throw;
     }
 
-    _matrix = new Matrix(rows, cols);
+    _matrix = new Matrix(fileRows(), fileCols());
 
     int rowNum = 0;
     if (!headerRow()) {

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../include/nnf/network/activations.h"
+#include "../include/nnf/network/activations.hpp"
 
 
 // Testing Activation Functions:

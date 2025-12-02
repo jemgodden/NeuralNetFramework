@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../matrix/matrix.h"
+#include "../matrix/matrix.hpp"
 
 
 void checkContinuousCostFunctionInputs(const Matrix* actual, const Matrix* predicted);
