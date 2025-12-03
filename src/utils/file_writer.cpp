@@ -40,14 +40,8 @@ int MatrixFileWriter::fileCols() const {
 void MatrixFileWriter::_createDirectory() const {
     const std::filesystem::path dir = fullFilePath().parent_path();
     if (!std::filesystem::exists(dir)) {
-        try {
-            std::filesystem::create_directories(dir);
-            std::cout << "Directory created: " << dir << std::endl;
-        }
-        catch (std::exception& e) {
-            std::cerr << e.what() << std::endl;
-            throw;
-        }
+        std::filesystem::create_directories(dir);
+        std::cout << "Directory created: " << dir << std::endl;
     }
 };
 

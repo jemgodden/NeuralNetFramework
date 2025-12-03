@@ -35,22 +35,16 @@ void Matrix::setAll(const double value) const {
 };
 
 void Matrix::setIdentity() const {
-    try {
-        if (rows() != cols()) {
-            throw IllegalMatrixOperation("Matrix is not square.");
-        }
-        for (int i=0; i<rows() * cols(); i++) {
-            if (i % (rows() + 1) == 0) {
-                *(_values + i) = 1;
-            }
-            else {
-                *(_values + i) = 0;
-            }
-        }
+    if (rows() != cols()) {
+        throw IllegalMatrixOperation("Matrix is not square.");
     }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
+    for (int i=0; i<rows() * cols(); i++) {
+        if (i % (rows() + 1) == 0) {
+            *(_values + i) = 1;
+        }
+        else {
+            *(_values + i) = 0;
+        }
     }
 };
 
@@ -65,19 +59,13 @@ void Matrix::set(const int row, const int col, const double value) const {
 };
 
 double Matrix::get(const int row, const int col) const {
-    try {
-        if (row >= rows()) {
-            throw std::out_of_range("Row index is out of range of matrix.");
-        }
-        if (col >= cols()) {
-            throw std::out_of_range("Column index is out of range matrix.");
-        }
-        return *(_values + (row * cols()) + col);
+    if (row >= rows()) {
+        throw std::out_of_range("Row index is out of range of matrix.");
     }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
+    if (col >= cols()) {
+        throw std::out_of_range("Column index is out of range matrix.");
     }
+    return *(_values + (row * cols()) + col);
 };
 
 double Matrix::_sampleUniformDistribution(const double min, const double max, const int scale) {
@@ -112,210 +100,156 @@ void Matrix::addScalar(const double scalar) const {
 };
 
 Matrix* Matrix::rowwiseSum() const {
-    try {
-        if (cols() == 1) {
-            throw IllegalMatrixOperation("Row-wise summations should only be done on a matrix with multiple columns");
-        }
+    if (cols() == 1) {
+        throw IllegalMatrixOperation("Row-wise summations should only be done on a matrix with multiple columns");
+    }
 
-        Matrix* output = new Matrix(rows(), 1);
-        for (int i=0; i<rows(); i++) {
-            double curSum = 0.0;
-            for (int j=0; j<cols(); j++) {
-                curSum += get(i, j);
-            }
-            output->set(i, 0, curSum);
+    Matrix* output = new Matrix(rows(), 1);
+    for (int i=0; i<rows(); i++) {
+        double curSum = 0.0;
+        for (int j=0; j<cols(); j++) {
+            curSum += get(i, j);
         }
-        return output;
+        output->set(i, 0, curSum);
     }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
-    }
+    return output;
 };
 
 Matrix* Matrix::columnwiseSum() const {
-    try {
-        if (rows() == 1) {
-            throw IllegalMatrixOperation("Column-wise summations should only be done on a matrix with multiple rows");
-        }
+    if (rows() == 1) {
+        throw IllegalMatrixOperation("Column-wise summations should only be done on a matrix with multiple rows");
+    }
 
-        Matrix* output = new Matrix(1, cols());
-        for (int j=0; j<cols(); j++) {
-            double curSum = 0.0;
-            for (int i=0; i<rows(); i++) {
-                curSum += get(i, j);
-            }
-            output->set(0, j, curSum);
+    Matrix* output = new Matrix(1, cols());
+    for (int j=0; j<cols(); j++) {
+        double curSum = 0.0;
+        for (int i=0; i<rows(); i++) {
+            curSum += get(i, j);
         }
-        return output;
+        output->set(0, j, curSum);
     }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
-    }
+    return output;
 };
 
 Matrix* Matrix::add(const Matrix* input) const {
-    try {
-        if (rows() != input->rows() || cols() != input->cols()) {
-            throw IllegalMatrixOperation("Matrix dimensions do not match.");
-        }
-        Matrix* output = new Matrix(rows(), cols());
-        for (int i=0; i<rows(); i++) {
-            for (int j=0; j<cols(); j++) {
-                const double value = get(i, j) + input->get(i, j);
-                output->set(i, j, value);
-            }
-        }
-        return output;
+    if (rows() != input->rows() || cols() != input->cols()) {
+        throw IllegalMatrixOperation("Matrix dimensions do not match.");
     }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
+
+    Matrix* output = new Matrix(rows(), cols());
+    for (int i=0; i<rows(); i++) {
+        for (int j=0; j<cols(); j++) {
+            const double value = get(i, j) + input->get(i, j);
+            output->set(i, j, value);
+        }
     }
+    return output;
 };
 
 Matrix* Matrix::rowwiseAdd(const Matrix* input) const {
-    try {
-        if (cols() != input->cols()) {
-            throw IllegalMatrixOperation("Matrix dimensions are invalid.");
-        }
-        Matrix* output = new Matrix(rows(), cols());
-        for (int i=0; i<rows(); i++) {
-            for (int j=0; j<cols(); j++) {
-                const double value = get(i, j) + input->get(0, j);
-                output->set(i, j, value);
-            }
-        }
-        return output;
+    if (cols() != input->cols()) {
+        throw IllegalMatrixOperation("Matrix dimensions are invalid.");
     }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
+
+    Matrix* output = new Matrix(rows(), cols());
+    for (int i=0; i<rows(); i++) {
+        for (int j=0; j<cols(); j++) {
+            const double value = get(i, j) + input->get(0, j);
+            output->set(i, j, value);
+        }
     }
+    return output;
 };
 
 Matrix* Matrix::columnwiseAdd(const Matrix* input) const {
-    try {
-        if (rows() != input->rows()) {
-            throw IllegalMatrixOperation("Matrix dimensions are invalid.");
-        }
-        Matrix* output = new Matrix(rows(), cols());
-        for (int i=0; i<rows(); i++) {
-            for (int j=0; j<cols(); j++) {
-                const double value = get(i, j) + input->get(i, 0);
-                output->set(i, j, value);
-            }
-        }
-        return output;
+    if (rows() != input->rows()) {
+        throw IllegalMatrixOperation("Matrix dimensions are invalid.");
     }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
+
+    Matrix* output = new Matrix(rows(), cols());
+    for (int i=0; i<rows(); i++) {
+        for (int j=0; j<cols(); j++) {
+            const double value = get(i, j) + input->get(i, 0);
+            output->set(i, j, value);
+        }
     }
+    return output;
 };
 
 Matrix* Matrix::subtract(const Matrix* input) const {
-    try {
-        if (rows() != input->rows() || cols() != input->cols()) {
-            throw IllegalMatrixOperation("Matrix dimensions do not match.");
-        }
-        Matrix* output = new Matrix(rows(), cols());
-        for (int i=0; i<rows(); i++) {
-            for (int j=0; j<cols(); j++) {
-                const double value = get(i, j) - input->get(i, j);
-                output->set(i, j, value);
-            }
-        }
-        return output;
+    if (rows() != input->rows() || cols() != input->cols()) {
+        throw IllegalMatrixOperation("Matrix dimensions do not match.");
     }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
+
+    Matrix* output = new Matrix(rows(), cols());
+    for (int i=0; i<rows(); i++) {
+        for (int j=0; j<cols(); j++) {
+            const double value = get(i, j) - input->get(i, j);
+            output->set(i, j, value);
+        }
     }
+    return output;
 };
 
 Matrix* Matrix::multiply(const Matrix* input) const {
-    try {
-        if (rows() != input->rows() || cols() != input->cols()) {
-            throw IllegalMatrixOperation("Matrix dimensions do not match.");
-        }
-        Matrix* output = new Matrix(rows(), cols());
-        for (int i=0; i<rows(); i++) {
-            for (int j=0; j<cols(); j++) {
-                const double value = get(i, j) * input->get(i, j);
-                output->set(i, j, value);
-            }
-        }
-        return output;
+    if (rows() != input->rows() || cols() != input->cols()) {
+        throw IllegalMatrixOperation("Matrix dimensions do not match.");
     }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
+
+    Matrix* output = new Matrix(rows(), cols());
+    for (int i=0; i<rows(); i++) {
+        for (int j=0; j<cols(); j++) {
+            const double value = get(i, j) * input->get(i, j);
+            output->set(i, j, value);
+        }
     }
+    return output;
 };
 
 Matrix* Matrix::rowwiseMultiply(const Matrix* input) const {
-    try {
-        if (input->rows() != 1 || cols() != input->cols()) {
-            throw IllegalMatrixOperation("Matrix dimensions do not match.");
-        }
-        Matrix* output = new Matrix(rows(), cols());
-        for (int i=0; i<rows(); i++) {
-            for (int j=0; j<cols(); j++) {
-                const double value = get(i, j) * input->get(0, j);
-                output->set(i, j, value);
-            }
-        }
-        return output;
+    if (input->rows() != 1 || cols() != input->cols()) {
+        throw IllegalMatrixOperation("Matrix dimensions do not match.");
     }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
+    Matrix* output = new Matrix(rows(), cols());
+    for (int i=0; i<rows(); i++) {
+        for (int j=0; j<cols(); j++) {
+            const double value = get(i, j) * input->get(0, j);
+            output->set(i, j, value);
+        }
     }
+    return output;
 };
 
 Matrix* Matrix::columnwiseMultiply(const Matrix* input) const {
-    try {
-        if (rows() != input->rows() || input->cols() != 1) {
-            throw IllegalMatrixOperation("Matrix dimensions do not match.");
-        }
-        Matrix* output = new Matrix(rows(), cols());
-        for (int i=0; i<rows(); i++) {
-            for (int j=0; j<cols(); j++) {
-                const double value = get(i, j) * input->get(i, 0);
-                output->set(i, j, value);
-            }
-        }
-        return output;
+    if (rows() != input->rows() || input->cols() != 1) {
+        throw IllegalMatrixOperation("Matrix dimensions do not match.");
     }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
+    Matrix* output = new Matrix(rows(), cols());
+    for (int i=0; i<rows(); i++) {
+        for (int j=0; j<cols(); j++) {
+            const double value = get(i, j) * input->get(i, 0);
+            output->set(i, j, value);
+        }
     }
+    return output;
 };
 
 Matrix* Matrix::dot(const Matrix* input) const {
-    try {
-        if (cols() != input->rows()) {
-            throw IllegalMatrixOperation("Matrix dimensions are not compatible.");
-        }
-        Matrix* output = new Matrix(rows(), input->cols());
-        for (int i=0; i<rows(); i++) {
-            for (int j=0; j<input->cols(); j++) {
-                double sum = 0;
-                for (int k=0; k<cols(); k++) {
-                    sum += get(i, k) * input->get(k, j);
-                }
-                output->set(i, j, sum);
+    if (cols() != input->rows()) {
+        throw IllegalMatrixOperation("Matrix dimensions are not compatible.");
+    }
+
+    Matrix* output = new Matrix(rows(), input->cols());
+    for (int i=0; i<rows(); i++) {
+        for (int j=0; j<input->cols(); j++) {
+            double sum = 0;
+            for (int k=0; k<cols(); k++) {
+                sum += get(i, k) * input->get(k, j);
             }
+            output->set(i, j, sum);
         }
-        return output;
     }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
-    }
+    return output;
 };
 
 void Matrix::apply(double (*func)(double)) const {
@@ -326,13 +260,11 @@ void Matrix::apply(double (*func)(double)) const {
 
 Matrix* Matrix::transpose() const {
     Matrix* output = new Matrix(cols(), rows());
-
     for (int i=0; i<rows(); i++) {
         for (int j=0; j<cols(); j++) {
             output->set(j, i, get(i, j));
         }
     }
-
     return output;
 };
 
@@ -342,7 +274,6 @@ Matrix* Matrix::rowwiseArgmax() const {
     }
 
     Matrix* output = new Matrix(rows(), 1);
-
     for (int i=0; i<rows(); i++) {
         double rowMax = get(i, 0);
         int rowMaxIndex = 0;
@@ -355,7 +286,6 @@ Matrix* Matrix::rowwiseArgmax() const {
         }
         output->set(i, 0, (rowMaxIndex * 1.0)); // Multiplying by 1.0 to cast to double.
     }
-
     return output;
 };
 
@@ -365,7 +295,6 @@ Matrix* Matrix::columnwiseArgmax() const {
     }
 
     Matrix* output = new Matrix(1, cols());
-
     for (int j=0; j<cols(); j++) {
         double colMax = get(0, j);
         int colMaxIndex = 0;
@@ -378,7 +307,6 @@ Matrix* Matrix::columnwiseArgmax() const {
         }
         output->set(0, j, (colMaxIndex * 1.0)); // Multiplying by 1.0 to cast to double.
     }
-
     return output;
 };
 
@@ -388,11 +316,9 @@ Matrix* Matrix::row(const int row) const {
     }
 
     Matrix* slice = new Matrix(1, cols());
-
     for (int i=0; i<cols(); i++) {
         slice->set(0, i, get(row, i));
     }
-
     return slice;
 };
 
@@ -402,11 +328,9 @@ Matrix* Matrix::col(const int col) const {
     }
 
     Matrix* slice = new Matrix(rows(), 1);
-
     for (int i=0; i<rows(); i++) {
         slice->set(i, 0, get(i, col));
     }
-
     return slice;
 };
 
@@ -417,7 +341,6 @@ std::tuple<Matrix*, Matrix*> Matrix::rowSlice(const int row) const {
 
     Matrix* slice = new Matrix(1, cols());
     Matrix* nonSlice = new Matrix(rows()-1, cols());
-
     int passedSliceRow = FALSE;
     for (int i=0; i<rows(); i++) {
         if (i == row) {
@@ -442,7 +365,6 @@ std::tuple<Matrix*, Matrix*> Matrix::colSlice(const int col) const {
 
     Matrix* slice = new Matrix(rows(), 1);
     Matrix* nonSlice = new Matrix(rows(), cols()-1);
-
     for (int i=0; i<rows(); i++) {
         int passedSliceCol = FALSE;
         for (int j=0; j<cols(); j++) {

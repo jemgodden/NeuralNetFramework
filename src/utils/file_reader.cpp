@@ -49,33 +49,27 @@ void MatrixFileReader::_getParameters() {
     std::ifstream inputFile;
     inputFile.open(fullFilePath());
 
-    try {
-        if (inputFile.is_open()) {
-            std::string firstLine;
+    if (inputFile.is_open()) {
+        std::string firstLine;
 
-            if (std::getline(inputFile, firstLine)) {
-                _fileCols = std::count(firstLine.begin(), firstLine.end(), ',') + 1;
-            }
-            else {
-                throw EmptyFile("Input file is empty.");
-            }
-
-            int rowCount = 1;
-            std::string nextLine;
-
-            while (std::getline(inputFile, nextLine)) {
-                ++rowCount;
-            }
-
-            _fileRows = rowCount - headerRow();
+        if (std::getline(inputFile, firstLine)) {
+            _fileCols = std::count(firstLine.begin(), firstLine.end(), ',') + 1;
         }
         else {
-            throw FileOpenError("Input file was not opened properly.");
+            throw EmptyFile("Input file is empty.");
         }
+
+        int rowCount = 1;
+        std::string nextLine;
+
+        while (std::getline(inputFile, nextLine)) {
+            ++rowCount;
+        }
+
+        _fileRows = rowCount - headerRow();
     }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
+    else {
+        throw FileOpenError("Input file was not opened properly.");
     }
 
     inputFile.close();
@@ -109,20 +103,14 @@ Matrix* MatrixFileReader::readMatrixFromFile(const std::string &filePath, const 
     inputFile.open(fullFilePath());
 
     std::string firstLine;
-    try {
-        if (inputFile.is_open()) {
-            if (std::getline(inputFile, firstLine)) {}
-            else {
-                throw EmptyFile("Input file is empty.");
-            }
-        }
+    if (inputFile.is_open()) {
+        if (std::getline(inputFile, firstLine)) {}
         else {
-            throw FileOpenError("Input file was not opened properly.");
+            throw EmptyFile("Input file is empty.");
         }
     }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
+    else {
+        throw FileOpenError("Input file was not opened properly.");
     }
 
     _matrix = new Matrix(fileRows(), fileCols());

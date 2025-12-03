@@ -16,13 +16,7 @@ void checkContinuousCostFunctionInputs(const Matrix* actual, const Matrix* predi
 };
 
 double meanSquaredError(const Matrix* actual, const Matrix* predicted) {
-    try {
-        checkContinuousCostFunctionInputs(actual, predicted);
-    }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
-    }
+    checkContinuousCostFunctionInputs(actual, predicted);
 
     double curSum = 0;
     for (int i=0; i<actual->rows(); i++) {
@@ -32,13 +26,7 @@ double meanSquaredError(const Matrix* actual, const Matrix* predicted) {
 };
 
 double continuousCrossEntropyLoss(const Matrix* actual, const Matrix* predicted) {
-    try {
-        checkContinuousCostFunctionInputs(actual, predicted);
-    }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
-    }
+    checkContinuousCostFunctionInputs(actual, predicted);
 
     double curSum = 0;
     for (int i=0; i<actual->rows(); i++) {
@@ -48,14 +36,8 @@ double continuousCrossEntropyLoss(const Matrix* actual, const Matrix* predicted)
 };
 
 double categoricalCrossEntropyLoss(const Matrix* actual, const Matrix* predicted) {
-    try {
-        if (actual->rows() != predicted->rows()) {
-            throw IllegalMatrixOperation("Cost functions can only be calculated on two column vectors.matrices with the same number of inputs.");
-        }
-    }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
+    if (actual->rows() != predicted->rows()) {
+        throw IllegalMatrixOperation("Cost functions can only be calculated on two column vectors.matrices with the same number of inputs.");
     }
 
     double curSum = 0;
@@ -67,14 +49,8 @@ double categoricalCrossEntropyLoss(const Matrix* actual, const Matrix* predicted
 };
 
 Matrix* categoricalCrossEntropyLossDerivative(const Matrix* actual, const Matrix* predicted) {
-    try {
-        if (actual->rows() != predicted->rows()) {
-            throw IllegalMatrixOperation("Cost functions can only be calculated on two column vectors/matrices with the same number of inputs.");
-        }
-    }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        throw;
+    if (actual->rows() != predicted->rows()) {
+        throw IllegalMatrixOperation("Cost functions can only be calculated on two column vectors/matrices with the same number of inputs.");
     }
 
     Matrix* output = new Matrix(actual->rows(), 1);
