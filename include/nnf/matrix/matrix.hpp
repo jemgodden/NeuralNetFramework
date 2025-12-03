@@ -11,7 +11,7 @@ class Matrix {
 
         double* _values;
 
-        static double _sampleUniformDistribution(double min, double max, int scale=10000);
+        static double _sampleUniformDistribution(double min, double max);
 
     public:
         Matrix(int rows, int cols, double value=DEFAULT_VALUE);

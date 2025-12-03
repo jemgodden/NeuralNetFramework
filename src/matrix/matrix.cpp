@@ -68,7 +68,8 @@ double Matrix::get(const int row, const int col) const {
     return *(_values + (row * cols()) + col);
 };
 
-double Matrix::_sampleUniformDistribution(const double min, const double max, const int scale) {
+double Matrix::_sampleUniformDistribution(const double min, const double max) {
+    constexpr int scale = 10000;
     const double diff = max - min;
     const int scaled_diff = static_cast<int>(diff * scale);
 
