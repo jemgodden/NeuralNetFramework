@@ -4,7 +4,7 @@
 #include "../../include/nnf/network/network.hpp"
 #include "../../include/nnf/network/activations.hpp"
 #include "../../include/nnf/network/costs.hpp"
-#include "costs.cpp"
+#include "costs.cpp"  // Local bug workaround.
 #include "../../include/nnf/utils/file_writer.hpp"
 #include "../../include/nnf/utils/file_reader.hpp"
 
