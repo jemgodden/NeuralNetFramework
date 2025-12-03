@@ -9,10 +9,9 @@
 #include "../../include/nnf/utils/file_reader.hpp"
 
 
-Network::Network(const int inputNodes, const int outputNodes, const int hiddenNodes) {
+Network::Network(const int inputNodes, const int hiddenNodes) {
     _inputNodes = inputNodes;
     _hiddenNodes = hiddenNodes;
-    _outputNodes = outputNodes;
 
     _inputToHiddenWeights = nullptr;
     _inputToHiddenBiases = nullptr;
@@ -33,10 +32,6 @@ Network::~Network() {
 
 int Network::inputNodes() const {
     return _inputNodes;
-};
-
-int Network::outputNodes() const {
-    return _outputNodes;
 };
 
 int Network::hiddenNodes() const {
@@ -68,10 +63,6 @@ void Network::_initialiseMatrices() {
     _inputToHiddenWeights->randomise();
     _inputToHiddenBiases = new Matrix(_hiddenNodes, 1); // (h, 1)
     _inputToHiddenBiases->randomise();
-    _hiddenToOutputWeights = new Matrix(_outputNodes, _hiddenNodes); // (o, h)
-    _hiddenToOutputWeights->randomise();
-    _hiddenToOutputBiases = new Matrix(_outputNodes, 1); // (o, 1)
-    _hiddenToOutputBiases->randomise();
 };
 
 std::tuple<Matrix*, Matrix*> Network::_splitLabelsMatrix(const Matrix* inputMatrix, const int labelColumnIndex) {
@@ -89,7 +80,60 @@ void Network::_setHiddenLayerOutput(Matrix* hiddenLayerOutput) {
     _hiddenLayerOutput = hiddenLayerOutput; // (h, n)
 };
 
-Matrix* Network::_feedForward(const Matrix* trainMatrix) { // (i, n)
+void Network::save(const std::string& modelName) const {
+    std::string modelDir;
+    if (modelName.empty()) {
+        time_t timestamp;
+        time(&timestamp);
+        const tm* datetime = localtime(&timestamp);
+        char datetime_buffer[20];
+        std::strftime(datetime_buffer, sizeof(datetime_buffer), "%Y%m%d-%H%M%S", datetime);
+        modelDir = datetime_buffer;
+        std::cout << "Saving model to directory: " << modelDir << std::endl;
+    }
+    else {
+        modelDir = modelName;
+    }
+
+    MatrixFileWriter* fileWriter = new MatrixFileWriter();
+    fileWriter->writeMatrixToFile("models/" + modelDir + "/input_to_hidden_weights.csv", _inputToHiddenWeights);
+    fileWriter->writeMatrixToFile("models/" + modelDir + "/input_to_hidden_biases.csv", _inputToHiddenBiases);
+    fileWriter->writeMatrixToFile("models/" + modelDir + "/hidden_to_output_weights.csv", _hiddenToOutputWeights);
+    fileWriter->writeMatrixToFile("models/" + modelDir + "/hidden_to_output_biases.csv", _hiddenToOutputBiases);
+};
+
+void Network::load(const std::string& modelName) {
+    MatrixFileReader* fileReader = new MatrixFileReader();
+    _inputToHiddenWeights = fileReader->readMatrixFromFile("models/" + modelName + "/input_to_hidden_weights.csv");
+    _inputToHiddenBiases = fileReader->readMatrixFromFile("models/" + modelName + "/input_to_hidden_biases.csv");
+    _hiddenToOutputWeights = fileReader->readMatrixFromFile("models/" + modelName + "/hidden_to_output_weights.csv");
+    _hiddenToOutputBiases = fileReader->readMatrixFromFile("models/" + modelName + "/hidden_to_output_biases.csv");
+
+    _inputNodes = _inputToHiddenWeights->cols();
+    _hiddenNodes = _inputToHiddenWeights->rows();
+};
+
+
+
+ClassificationNetwork::ClassificationNetwork(const int inputNodes, const int outputNodes, const int hiddenNodes): Network(inputNodes, hiddenNodes) {
+    _outputNodes = outputNodes;
+};
+
+ClassificationNetwork::~ClassificationNetwork() = default;
+
+int ClassificationNetwork::outputNodes() const {
+    return _outputNodes;
+};
+
+void ClassificationNetwork::_initialiseMatrices() {
+    Network::_initialiseMatrices();
+    _hiddenToOutputWeights = new Matrix(_outputNodes, _hiddenNodes); // (o, h)
+    _hiddenToOutputWeights->randomise();
+    _hiddenToOutputBiases = new Matrix(_outputNodes, 1); // (o, 1)
+    _hiddenToOutputBiases->randomise();
+};
+
+Matrix* ClassificationNetwork::_feedForward(const Matrix* trainMatrix) { // (i, n)
     const Matrix* inputHiddenLayerWeights = _inputToHiddenWeights->dot(trainMatrix); // (h, n)
     Matrix* inputHiddenLayerBiases = inputHiddenLayerWeights->columnwiseAdd(_inputToHiddenBiases); // (h, n)
     inputHiddenLayerBiases->apply(&sigmoid); // (h, n)
@@ -103,7 +147,7 @@ Matrix* Network::_feedForward(const Matrix* trainMatrix) { // (i, n)
     return outputHiddenLayerBiases; // (o, n)
 };
 
-void Network::_backPropagate(const Matrix* trainMatrix, const Matrix* actualLabelMatrix, const Matrix* predictedLabelMatrix, const double learningRate) { // (i, n), (n, 1), (n, o)
+void ClassificationNetwork::_backPropagate(const Matrix* trainMatrix, const Matrix* actualLabelMatrix, const Matrix* predictedLabelMatrix, const double learningRate) { // (i, n), (n, 1), (n, o)
     // Calculate Errors
     // Calculating output layer errors.
     const Matrix* outputError = categoricalCrossEntropyLossDerivative(actualLabelMatrix, predictedLabelMatrix); // (n, 1)
@@ -167,7 +211,7 @@ void Network::_backPropagate(const Matrix* trainMatrix, const Matrix* actualLabe
     delete transposedInputToHiddenBiasesDelta;
 };
 
-void Network::train(const Matrix* trainMatrix, const int labelColumnIndex, const int epochs, const double learningRate) { // (n, i+1)
+void ClassificationNetwork::_train(const Matrix* trainMatrix, const int labelColumnIndex, const int epochs, const double learningRate) { // (n, i+1)
     auto [trainLabels, trainData] = _splitLabelsMatrix(trainMatrix, labelColumnIndex); // (n, i), (n, 1)
     if (trainData->cols() != inputNodes()) {
         throw std::invalid_argument("Input matrix must have the same number of columns as stated with inputNodes at network creation.");
@@ -197,7 +241,11 @@ void Network::train(const Matrix* trainMatrix, const int labelColumnIndex, const
     delete transposedTrainData;
 };
 
-double Network::predict(const Matrix* testMatrix, const int labelColumnIndex) { // (n, i+1)
+void ClassificationNetwork::train(const Matrix* trainMatrix, const int labelColumnIndex, const int epochs, const double learningRate) {
+    _train(trainMatrix, labelColumnIndex, epochs, learningRate);
+};
+
+double ClassificationNetwork::_predict(const Matrix* testMatrix, const int labelColumnIndex) { // (n, i+1)
     auto [testLabels, testData] = _splitLabelsMatrix(testMatrix, labelColumnIndex); // (n, i), (n, 1)
     const Matrix* transposedTestData = testData->transpose(); // (i, n)
     delete testData;
@@ -223,36 +271,11 @@ double Network::predict(const Matrix* testMatrix, const int labelColumnIndex) { 
     return 1.0 * (numCorrect / numRows);
 };
 
-void Network::save(const std::string& modelName) const {
-    std::string modelDir;
-    if (modelName.empty()) {
-        time_t timestamp;
-        time(&timestamp);
-        const tm* datetime = localtime(&timestamp);
-        char datetime_buffer[20];
-        std::strftime(datetime_buffer, sizeof(datetime_buffer), "%Y%m%d-%H%M%S", datetime);
-        modelDir = datetime_buffer;
-        std::cout << "Saving model to directory: " << modelDir << std::endl;
-    }
-    else {
-        modelDir = modelName;
-    }
-
-    MatrixFileWriter* fileWriter = new MatrixFileWriter();
-    fileWriter->writeMatrixToFile("models/" + modelDir + "/input_to_hidden_weights.csv", _inputToHiddenWeights);
-    fileWriter->writeMatrixToFile("models/" + modelDir + "/input_to_hidden_biases.csv", _inputToHiddenBiases);
-    fileWriter->writeMatrixToFile("models/" + modelDir + "/hidden_to_output_weights.csv", _hiddenToOutputWeights);
-    fileWriter->writeMatrixToFile("models/" + modelDir + "/hidden_to_output_biases.csv", _hiddenToOutputBiases);
+double ClassificationNetwork::predict(const Matrix* testMatrix, const int labelColumnIndex) {
+    return _predict(testMatrix, labelColumnIndex);
 };
 
-void Network::load(const std::string& modelName) {
-    MatrixFileReader* fileReader = new MatrixFileReader();
-    _inputToHiddenWeights = fileReader->readMatrixFromFile("models/" + modelName + "/input_to_hidden_weights.csv");
-    _inputToHiddenBiases = fileReader->readMatrixFromFile("models/" + modelName + "/input_to_hidden_biases.csv");
-    _hiddenToOutputWeights = fileReader->readMatrixFromFile("models/" + modelName + "/hidden_to_output_weights.csv");
-    _hiddenToOutputBiases = fileReader->readMatrixFromFile("models/" + modelName + "/hidden_to_output_biases.csv");
-
-    _inputNodes = _inputToHiddenWeights->cols();
-    _hiddenNodes = _inputToHiddenWeights->rows();
+void ClassificationNetwork::load(const std::string& modelName) {
+    Network::load(modelName);
     _outputNodes = _hiddenToOutputWeights->rows();
 };
