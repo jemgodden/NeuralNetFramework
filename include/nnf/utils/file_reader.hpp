@@ -14,9 +14,9 @@ class MatrixFileReader {
 
         bool _headerRow;
 
-        int _fileRows;
+        long _fileRows;
 
-        int _fileCols;
+        long _fileCols;
 
         Matrix* _matrix;
 
@@ -33,9 +33,9 @@ class MatrixFileReader {
 
         bool headerRow() const;
 
-        int fileRows() const;
+        long fileRows() const;
 
-        int fileCols() const;
+        long fileCols() const;
 
         Matrix* matrix() const;
 

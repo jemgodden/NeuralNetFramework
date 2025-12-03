@@ -33,11 +33,11 @@ bool MatrixFileReader::headerRow() const {
     return _headerRow;
 };
 
-int MatrixFileReader::fileRows() const {
+long MatrixFileReader::fileRows() const {
     return _fileRows;
 };
 
-int MatrixFileReader::fileCols() const {
+long MatrixFileReader::fileCols() const {
     return _fileCols;
 };
 
@@ -113,7 +113,7 @@ Matrix* MatrixFileReader::readMatrixFromFile(const std::string &filePath, const 
         throw FileOpenError("Input file was not opened properly.");
     }
 
-    _matrix = new Matrix(fileRows(), fileCols());
+    _matrix = new Matrix(static_cast<int>(fileRows()), static_cast<int>(fileCols()));
 
     int rowNum = 0;
     if (!headerRow()) {
